@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F5FA8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:0}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Смета и КП</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+
+<style>
+/* Layout: one-screen phone tool — scrolling work area, total bar and tab bar pinned at the bottom */
+:root {
+  --bg: #EDEFF1; --surface: #FFFFFF; --sunk: #F4F5F6; --line: #D8DCE1;
+  --fg: #15181C; --muted: #545C65; --accent: #1F5FA8; --accent-soft: #E0E9F4;
+  --accent-fg: #FFFFFF; --ok: #22683F; --danger: #A3311E;
+  --font: system-ui, -apple-system, Roboto, "Segoe UI", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111317; --surface: #1B1F24; --sunk: #15181C; --line: #2D333A;
+  --fg: #ECEEF0; --muted: #A2AAB3; --accent: #74A7E8; --accent-soft: #1D2B3C;
+  --accent-fg: #0C1520; --ok: #7CCB98; --danger: #F2907B; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111317; --surface: #1B1F24; --sunk: #15181C; --line: #2D333A;
+  --fg: #ECEEF0; --muted: #A2AAB3; --accent: #74A7E8; --accent-soft: #1D2B3C;
+  --accent-fg: #0C1520; --ok: #7CCB98; --danger: #F2907B; color-scheme: dark }
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 16px; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+#app { height: 100%; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; }
+main { flex: 1; overflow-y: auto; padding-block: 20px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+h1 { margin: 0; font-size: 27px; font-weight: 800; text-wrap: balance; }
+h2 { margin: 0; font-size: 18px; font-weight: 800; }
+.head { display: flex; flex-direction: column; gap: 2px; }
+.row-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.panel { background: var(--surface); border-radius: 18px; padding: 4px 16px; display: flex; flex-direction: column; }
+.panel.pad { padding: 16px; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700; color: var(--muted); }
+.inp { height: 48px; border-radius: 12px; border: 2px solid var(--line); background: var(--sunk); padding: 0 12px; font-size: 16px; font-weight: 700; color: var(--fg); width: 100%; min-width: 0; }
+.inp:focus { border-color: var(--accent); outline: none; }
+.num { text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+textarea.inp { height: auto; min-height: 76px; padding: 10px 12px; resize: vertical; }
+.line { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.line:last-child { border-bottom: none; }
+.line .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.line .t { font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+.line .s { font-size: 13px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.line.on .t { color: var(--accent); }
+.unit { font-size: 14px; font-weight: 700; color: var(--muted); min-width: 22px; }
+.btn { height: 52px; border-radius: 14px; border: none; padding: 0 20px; font-size: 16px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.primary { background: var(--accent); color: var(--accent-fg); }
+.btn.ghost { background: transparent; border: 2px solid var(--line); color: var(--fg); }
+.btn.soft { background: var(--accent-soft); color: var(--accent); }
+.btn.dashed { background: transparent; border: 2px dashed var(--line); color: var(--fg); width: 100%; }
+.btn.danger { background: transparent; border: 2px solid var(--danger); color: var(--danger); }
+.btn.sm { height: 44px; padding: 0 14px; font-size: 15px; }
+.btn.block { width: 100%; }
+.iconbtn { width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.iconbtn.confirm { border-color: var(--danger); color: var(--danger); width: auto; padding: 0 10px; font-size: 13px; }
+.pline { display: flex; flex-direction: column; gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.pline:last-child { border-bottom: none; }
+.pctl { display: flex; gap: 8px; align-items: center; }
+textarea.pname { min-height: 48px; height: auto; resize: none; overflow: hidden; line-height: 1.35; padding: 12px; font-size: 16px; }
+.unitbtn { height: 44px; min-width: 62px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 800; flex-shrink: 0; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.btns > * { flex: 1 1 140px; }
+.hint { margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); line-height: 1.45; }
+
+.bar { background: var(--surface); border-top: 1px solid var(--line); padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; align-items: center; gap: 14px; }
+.bar .tot { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.bar .tot small { font-size: 13px; font-weight: 700; color: var(--muted); }
+.bar .tot b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+nav.tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; background: var(--surface); border-top: 1px solid var(--line); padding-top: 6px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
+nav.tabs button { height: 52px; border: none; border-radius: 12px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 800; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+nav.tabs button svg { width: 22px; height: 22px; }
+nav.tabs button[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+
+.hist { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); background: none; border-left: none; border-right: none; border-top: none; text-align: left; width: 100%; }
+.hist:last-child { border-bottom: none; }
+.hist .no { font-size: 13px; font-weight: 800; color: var(--accent); background: var(--accent-soft); border-radius: 8px; padding: 4px 8px; font-variant-numeric: tabular-nums; }
+.hist .sum { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.empty { padding: 28px 8px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+.logo-row { display: flex; align-items: center; gap: 14px; }
+.profs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.prof { min-height: 84px; border-radius: 16px; border: 2px solid var(--line); background: var(--surface); padding: 14px; text-align: left; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+.prof b { font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
+.prof span { font-size: 13px; font-weight: 600; color: var(--muted); }
+.prof.cur { border-color: var(--accent); background: var(--accent-soft); }
+.prof.cur b { color: var(--accent); }
+.profrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.logo-box { width: 64px; height: 64px; border-radius: 14px; background: var(--sunk); border: 2px dashed var(--line); display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+.logo-box img { width: 100%; height: 100%; object-fit: contain; }
+.file-label { position: relative; overflow: hidden; }
+.file-label input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* The client document: fixed paper palette in both themes, because it becomes the PDF */
+.paper-wrap { background: var(--sunk); border-radius: 18px; padding: 12px; }
+.doc { --p-ink: #15181C; --p-muted: #555D66; --p-line: #DADDE1; --p-tint: #F3F5F7;
+  background: #FFFFFF; color: var(--p-ink); border-radius: 4px; padding: 26px 22px; display: flex; flex-direction: column; gap: 16px; font-family: var(--font); font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.doc .top { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+.doc .who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.doc .who b { font-size: 17px; font-weight: 800; }
+.doc .who span { color: var(--p-muted); font-weight: 600; font-size: 13px; overflow-wrap: anywhere; }
+.doc .lg { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; }
+.doc .title { display: flex; flex-direction: column; gap: 3px; border-top: 2px solid var(--p-ink); padding-top: 12px; }
+.doc .title b { font-size: 20px; font-weight: 800; }
+.doc .title span { color: var(--p-muted); font-weight: 600; font-size: 13px; }
+.doc table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.doc th { text-align: left; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--p-muted); font-weight: 800; padding: 0 0 6px; border-bottom: 1px solid var(--p-line); }
+.doc td { padding: 8px 0; border-bottom: 1px solid var(--p-line); vertical-align: top; font-weight: 600; }
+.doc td.r, .doc th.r { text-align: right; white-space: nowrap; padding-left: 10px; }
+.doc td.q { color: var(--p-muted); white-space: nowrap; padding-left: 10px; }
+.doc .total { display: flex; justify-content: space-between; align-items: baseline; font-variant-numeric: tabular-nums; }
+.doc .total b { font-size: 16px; font-weight: 800; }
+.doc .total strong { font-size: 24px; font-weight: 800; }
+.doc .terms { background: var(--p-tint); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; }
+.doc .note { color: var(--p-muted); font-size: 12px; font-weight: 600; white-space: pre-line; }
+#pdf-stage { position: fixed; left: -10000px; top: 0; width: 794px; }
+#pdf-stage .doc { border-radius: 0; box-shadow: none; padding: 56px 60px; font-size: 15px; gap: 20px; }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(150px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 15px; max-width: calc(100% - 32px); z-index: 20; text-align: center; }
+@media (prefers-reduced-motion: no-preference) { .toast { animation: rise .2s ease-out; } @keyframes rise { from { opacity: 0; transform: translate(-50%, 8px); } } }
+</style>
+
+</head>
+<body>
+<div id="app">
+  <main id="main" aria-live="polite"></main>
+  <div id="bar" class="bar" hidden></div>
+  <nav class="tabs" id="tabs" aria-label="Разделы">
+    <button data-tab="calc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21 21 3"/><path d="m7 17-2-2M11 13l-2-2M15 9l-2-2M19 5l-2-2"/></svg>Замер</button>
+    <button data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Мои КП</button>
+    <button data-tab="price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Прайс</button>
+    <button data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Профиль</button>
+  </nav>
+</div>
+
+<script>
+(function () {
+'use strict';
+var PREVIEW = false;
+var KEY = 'kp-app-v1';
+
+/* Профессии и стартовые прайсы. Цены примерные — мастер правит их под себя */
+var PROFS = [
+  { id: 'tile', name: 'Плиточник', trade: 'Укладка плитки', works: [
+    ['Демонтаж старой плитки', 'м²', 400], ['Выравнивание стен', 'м²', 450], ['Гидроизоляция', 'м²', 350],
+    ['Укладка плитки на стены', 'м²', 1300], ['Укладка плитки на пол', 'м²', 1200], ['Затирка швов', 'м²', 150],
+    ['Запил под 45°', 'м', 500], ['Короб из ГКЛ под плитку', 'м', 1200], ['Вывоз мусора', 'шт', 1500]] },
+  { id: 'elec', name: 'Электрик', trade: 'Электромонтажные работы', works: [
+    ['Штробление стен', 'м', 400], ['Прокладка кабеля', 'м', 120], ['Установка подрозетника', 'шт', 350],
+    ['Монтаж розетки или выключателя', 'шт', 350], ['Установка автомата', 'шт', 500], ['Сборка электрощита', 'шт', 6000],
+    ['Монтаж светильника', 'шт', 800], ['Подключение люстры', 'шт', 1500]] },
+  { id: 'plumb', name: 'Сантехник', trade: 'Сантехнические работы', works: [
+    ['Разводка водоснабжения', 'точка', 2500], ['Разводка канализации', 'точка', 2000], ['Установка унитаза', 'шт', 3000],
+    ['Монтаж инсталляции', 'шт', 6000], ['Установка раковины', 'шт', 2500], ['Установка смесителя', 'шт', 1500],
+    ['Установка ванны', 'шт', 5000], ['Установка водонагревателя', 'шт', 3500]] },
+  { id: 'finish', name: 'Отделочник', trade: 'Отделочные работы', works: [
+    ['Грунтовка стен', 'м²', 60], ['Штукатурка стен по маякам', 'м²', 600], ['Шпаклёвка под покраску', 'м²', 350],
+    ['Покраска стен', 'м²', 300], ['Поклейка обоев', 'м²', 350], ['Покраска потолка', 'м²', 350], ['Установка уголков', 'м', 150]] },
+  { id: 'floor', name: 'Полы', trade: 'Укладка напольных покрытий', works: [
+    ['Стяжка пола', 'м²', 600], ['Укладка подложки', 'м²', 50], ['Укладка ламината', 'м²', 400],
+    ['Укладка линолеума', 'м²', 250], ['Укладка паркетной доски', 'м²', 600], ['Монтаж плинтуса', 'м', 200], ['Установка порожка', 'шт', 300]] },
+  { id: 'ceil', name: 'Натяжные потолки', trade: 'Натяжные потолки', works: [
+    ['Полотно матовое', 'м²', 450], ['Монтаж профиля', 'м', 200], ['Установка светильника', 'шт', 400],
+    ['Закладная под люстру', 'шт', 600], ['Обвод трубы', 'шт', 300], ['Скрытый карниз', 'м', 1500]] },
+  { id: 'doors', name: 'Окна и двери', trade: 'Установка окон и дверей', works: [
+    ['Установка межкомнатной двери', 'шт', 4000], ['Установка входной двери', 'шт', 5000], ['Монтаж доборов', 'компл', 1000],
+    ['Монтаж наличников', 'компл', 800], ['Откосы', 'м', 900], ['Установка подоконника', 'шт', 1200], ['Москитная сетка', 'шт', 500]] },
+  { id: 'furn', name: 'Сборка мебели', trade: 'Сборка и установка мебели', works: [
+    ['Сборка кухни', 'м', 3500], ['Сборка шкафа', 'шт', 2500], ['Сборка кровати', 'шт', 2000],
+    ['Сборка комода', 'шт', 1200], ['Сборка стола', 'шт', 800], ['Навеска полки', 'шт', 400], ['Врезка мойки или варочной панели', 'шт', 1000]] },
+  { id: 'fence', name: 'Заборы', trade: 'Установка заборов и ворот', works: [
+    ['Установка столба', 'шт', 700], ['Забор из профнастила', 'м', 1500], ['Забор из сетки-рабицы', 'м', 600],
+    ['Установка ворот', 'шт', 8000], ['Установка калитки', 'шт', 4000], ['Демонтаж старого забора', 'м', 300]] },
+  { id: 'clean', name: 'Клининг', trade: 'Клининговые услуги', works: [
+    ['Генеральная уборка', 'м²', 120], ['Уборка после ремонта', 'м²', 180], ['Мойка окна', 'шт', 500],
+    ['Химчистка дивана', 'шт', 2500], ['Химчистка ковра', 'м²', 300], ['Мойка холодильника', 'шт', 800]] },
+  { id: 'tattoo', name: 'Тату-мастер', trade: 'Художественная татуировка', mat: 'Расходники',
+    terms: { term: '1 сеанс, точное время после согласования эскиза', warranty: 'бесплатная коррекция в течение 2 месяцев', prepay: '2 000 ₽ за бронь сеанса, входит в стоимость' },
+    works: [
+    ['Индивидуальный эскиз', 'шт', 3000], ['Мини-тату до 5 см', 'шт', 3000], ['Татуировка 5–10 см', 'шт', 6000],
+    ['Татуировка 10–15 см', 'шт', 10000], ['Татуировка 15–20 см', 'шт', 15000], ['Крупная работа', 'сеанс', 18000],
+    ['Работа по часам', 'час', 4000], ['Цвет (доплата)', 'шт', 3000], ['Перекрытие старой тату (доплата)', 'шт', 5000],
+    ['Коррекция после гарантии', 'шт', 1500]] },
+  { id: 'own', name: 'Другое', trade: '', works: [['', 'шт', '']] }
+];
+var UNITS = ['м²', 'шт', 'м', 'м³', 'компл', 'точка', 'час', 'сеанс', 'см'];
+function matLabel() { var p = profById(S.prof); return (p && p.mat) || 'Материалы'; }
+var BASE_TERMS = { term: '5–7 рабочих дней', warranty: '12 месяцев', prepay: '30% на материалы' };
+function profById(id) { return PROFS.find(function (p) { return p.id === id; }); }
+function presetWorks(p) { return p.works.map(function (w) { return { id: uid(), name: w[0], unit: w[1], price: w[2] }; }); }
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function fresh() {
+  return {
+    profile: { name: '', trade: '', phone: '', logo: '', term: '5–7 рабочих дней', warranty: '12 месяцев', prepay: '30% на материалы', note: '' },
+    works: [],
+    draft: { client: '', address: '', qty: {}, mat: '', editId: null },
+    history: [], counter: 0, sample: false, prof: null
+  };
+}
+var S;
+try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
+if (!S || !S.works) S = fresh();
+/* pick: экран выбора профессии; pending — выбранная профессия, ждущая решения про прайс */
+var pick = !S.prof, pending = null;
+function applyProf(p, replace) {
+  S.prof = p.id;
+  if (p.trade || replace) S.profile.trade = p.trade;
+  if (replace) { var tm = p.terms || BASE_TERMS; S.profile.term = tm.term; S.profile.warranty = tm.warranty; S.profile.prepay = tm.prepay; S.works = presetWorks(p); S.draft = { client: '', address: '', qty: {}, mat: '', editId: null }; S.sample = false; }
+  save();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+var tab = 'calc', view = null, confirmId = null, delConfirm = null;
+var $main = document.getElementById('main'), $bar = document.getElementById('bar');
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function num(v) { return parseFloat(String(v == null ? '' : v).replace(',', '.').replace(/\s/g, '')) || 0; }
+function money(n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽'; }
+function qfmt(n) { return (Math.round(n * 100) / 100).toLocaleString('ru-RU'); }
+function today() { return new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }); }
+function toast(t) {
+  var old = document.querySelector('.toast'); if (old) old.remove();
+  var d = document.createElement('div'); d.className = 'toast'; d.setAttribute('role', 'status'); d.textContent = t;
+  document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2600);
+}
+
+function calcTotals() {
+  var works = 0;
+  S.works.forEach(function (w) { works += num(w.price) * num(S.draft.qty[w.id]); });
+  return { works: works, total: works + num(S.draft.mat) };
+}
+
+function editing() { return S.draft.editId && S.history.find(function (k) { return k.id === S.draft.editId; }); }
+
+/* ---------- Замер ---------- */
+function renderCalc() {
+  var h = '<div class="head"><p class="eyebrow">' + (editing() ? 'Правка КП № ' + editing().no : 'Новый замер') + '</p><h1>Расчёт работ</h1></div>';
+  if (S.sample) h += '<p class="hint">Здесь стоят примерные цены и метры, чтобы было видно, как всё работает. Свои цены впиши во вкладке «Прайс», а данные мастера — в «Профиле».</p>';
+  h += '<div class="panel pad">' +
+    '<label class="field" for="f-client">Клиент<input class="inp" id="f-client" data-d="client" value="' + esc(S.draft.client) + '" placeholder="Имя и что делаем: Ирина, ванная"></label>' +
+    '<label class="field" for="f-addr">Адрес объекта<input class="inp" id="f-addr" data-d="address" value="' + esc(S.draft.address) + '" placeholder="Необязательно"></label></div>';
+  h += '<div class="panel">';
+  S.works.forEach(function (w) {
+    var q = S.draft.qty[w.id] || '';
+    var s = num(w.price) * num(q);
+    h += '<div class="line' + (s > 0 ? ' on' : '') + '" data-row="' + w.id + '"><div class="grow"><span class="t">' + esc(w.name || 'Без названия') + '</span><span class="s" data-s="' + w.id + '">' + money(num(w.price)) + ' за ' + esc(w.unit) + (s > 0 ? ' · ' + money(s) : '') + '</span></div>' +
+      '<input class="inp num" style="width:72px" id="q-' + w.id + '" data-q="' + w.id + '" inputmode="decimal" placeholder="0" value="' + esc(q) + '" aria-label="' + esc(w.name) + ', количество"><span class="unit">' + esc(w.unit) + '</span></div>';
+  });
+  h += '<div class="line"><label class="grow" for="f-mat"><span class="t">' + esc(matLabel()) + '</span><span class="s">Одной суммой, если нужно</span></label><input class="inp num" style="width:100px" id="f-mat" data-d="mat" inputmode="decimal" value="' + esc(S.draft.mat) + '"><span class="unit">₽</span></div>';
+  h += '</div>';
+  h += '<div class="btns"><button class="btn ghost" data-act="reset">Новый замер</button></div>';
+  $main.innerHTML = h;
+  $bar.hidden = false;
+  $bar.innerHTML = '<div class="tot"><small>Итого</small><b id="tot">' + money(calcTotals().total) + '</b></div><button class="btn primary" data-act="make">' + (editing() ? 'Обновить КП № ' + editing().no : 'Создать КП') + '</button>';
+}
+function onCalcInput(e) {
+  var t = e.target;
+  if (t.dataset.d) { S.draft[t.dataset.d] = t.value; }
+  if (t.dataset.q) {
+    var id = t.dataset.q; S.draft.qty[id] = t.value;
+    var w = S.works.find(function (x) { return x.id === id; });
+    var s = num(w.price) * num(t.value);
+    var el = $main.querySelector('[data-s="' + id + '"]');
+    el.textContent = money(num(w.price)) + ' за ' + w.unit + (s > 0 ? ' · ' + money(s) : '');
+    el.parentNode.parentNode.classList.toggle('on', s > 0);
+  }
+  var tot = document.getElementById('tot'); if (tot) tot.textContent = money(calcTotals().total);
+  save();
+}
+function makeKp() {
+  var lines = [];
+  S.works.forEach(function (w) {
+    var q = num(S.draft.qty[w.id]);
+    if (q > 0 && num(w.price) >= 0) lines.push({ name: w.name || 'Работа', unit: w.unit, qty: q, price: num(w.price), sum: q * num(w.price) });
+  });
+  if (!lines.length && num(S.draft.mat) <= 0) { toast('Впиши количество хотя бы у одной работы'); return; }
+  var t = calcTotals(), kp;
+  var old = S.draft.editId && S.history.find(function (k) { return k.id === S.draft.editId; });
+  if (old) kp = old; else { S.counter += 1; kp = { id: uid(), no: S.counter, date: today() }; S.history.unshift(kp); }
+  kp.client = S.draft.client; kp.address = S.draft.address; kp.lines = lines; kp.mat = num(S.draft.mat); kp.matLabel = matLabel(); kp.total = t.total;
+  kp.profile = JSON.parse(JSON.stringify(S.profile));
+  S.draft.editId = kp.id;
+  save();
+  view = kp.id; render();
+}
+
+/* ---------- КП ---------- */
+function docHtml(kp) {
+  var p = kp.profile || S.profile;
+  var h = '<div class="doc"><div class="top"><div class="who"><b>' + esc(p.name || '[Имя мастера — заполни в Профиле]') + '</b><span>' + esc(p.trade) + '</span><span>' + esc(p.phone || '[Телефон]') + '</span></div>' +
+    (p.logo ? '<img class="lg" alt="" src="' + p.logo + '">' : '') + '</div>';
+  h += '<div class="title"><b>Коммерческое предложение № ' + kp.no + '</b><span>' + esc(kp.client || 'Клиент') + (kp.address ? ' · ' + esc(kp.address) : '') + ' · ' + esc(kp.date) + '</span></div>';
+  h += '<table><thead><tr><th>Работа</th><th class="r">Кол-во</th><th class="r">Сумма</th></tr></thead><tbody>';
+  kp.lines.forEach(function (l) {
+    h += '<tr><td>' + esc(l.name) + '<br><span style="color:var(--p-muted);font-size:12px">' + money(l.price) + ' за ' + esc(l.unit) + '</span></td><td class="q r">' + qfmt(l.qty) + ' ' + esc(l.unit) + '</td><td class="r">' + money(l.sum) + '</td></tr>';
+  });
+  if (kp.mat > 0) h += '<tr><td>' + esc(kp.matLabel || 'Материалы') + '</td><td class="q r"></td><td class="r">' + money(kp.mat) + '</td></tr>';
+  h += '</tbody></table><div class="total"><b>Итого</b><strong>' + money(kp.total) + '</strong></div>';
+  var terms = [];
+  if (p.term) terms.push('Срок: ' + esc(p.term));
+  if (p.warranty) terms.push('Гарантия на работы: ' + esc(p.warranty));
+  if (p.prepay) terms.push('Предоплата: ' + esc(p.prepay));
+  if (terms.length) h += '<div class="terms">' + terms.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div>';
+  if (p.note) h += '<div class="note">' + esc(p.note) + '</div>';
+  return h + '</div>';
+}
+function renderKp(kp) {
+  var h = '<div class="row-head"><div class="head"><p class="eyebrow">КП № ' + kp.no + ' · ' + esc(kp.date) + '</p><h1>' + esc(kp.client || 'Клиент') + '</h1></div></div>';
+  h += '<div class="paper-wrap">' + docHtml(kp) + '</div>';
+  h += '<div class="btns"><button class="btn ghost" data-act="edit" data-id="' + kp.id + '">Изменить</button><button class="btn ghost" data-act="dup" data-id="' + kp.id + '">Копия как новое</button></div>';
+  h += delConfirm === kp.id
+    ? '<div class="panel pad"><h2>Удалить КП № ' + kp.no + '?</h2><p class="hint">Его нельзя будет вернуть. Номера других КП не изменятся.</p><div class="btns"><button class="btn danger" data-act="delkp" data-id="' + kp.id + '">Удалить</button><button class="btn ghost" data-act="delno">Отмена</button></div></div>'
+    : '<button class="btn danger block" data-act="delask" data-id="' + kp.id + '">Удалить КП</button>';
+  $main.innerHTML = h;
+  $bar.hidden = false;
+  $bar.innerHTML = '<button class="btn ghost sm" data-act="back" aria-label="Назад">←</button><button class="btn primary" style="flex:1" data-act="pdf" data-id="' + kp.id + '">Отправить PDF</button>';
+}
+
+/* ---------- Мои КП ---------- */
+function renderHistory() {
+  var h = '<div class="head"><p class="eyebrow">Сохраняются на этом телефоне</p><h1>Мои КП</h1></div>';
+  if (!S.history.length) {
+    h += '<div class="panel"><div class="empty"><h2>Пока пусто</h2><p class="hint">Сделай замер и нажми «Создать КП» — предложение появится здесь.</p><button class="btn soft sm" data-goto="calc">Перейти к замеру</button></div></div>';
+  } else {
+    h += '<div class="panel">';
+    S.history.forEach(function (k) {
+      h += '<button class="hist" data-open="' + k.id + '"><span class="no">№ ' + k.no + '</span><span class="grow" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="t" style="font-weight:700">' + esc(k.client || 'Клиент') + '</span><span class="s" style="font-size:13px;color:var(--muted);font-weight:600">' + esc(k.date) + '</span></span><span class="sum">' + money(k.total) + '</span></button>';
+    });
+    h += '</div>';
+  }
+  $main.innerHTML = h; $bar.hidden = true;
+}
+
+/* ---------- Прайс ---------- */
+function renderPrice() {
+  var h = '<div class="head"><p class="eyebrow">Заполняется один раз</p><h1>Мой прайс</h1></div><div class="panel">';
+  S.works.forEach(function (w) {
+    var c = confirmId === w.id;
+    h += '<div class="pline"><textarea class="inp pname" rows="1" id="n-' + w.id + '" data-pn="' + w.id + '" placeholder="Название работы" aria-label="Название работы">' + esc(w.name) + '</textarea>' +
+      '<div class="pctl"><input class="inp num" style="flex:1" id="p-' + w.id + '" data-pp="' + w.id + '" inputmode="decimal" value="' + esc(w.price) + '" placeholder="Цена" aria-label="Цена">' +
+      '<button class="unitbtn" data-unit="' + w.id + '" aria-label="Единица: ' + esc(w.unit) + ', сменить">₽/' + esc(w.unit) + '</button>' +
+      '<button class="iconbtn' + (c ? ' confirm' : '') + '" data-del="' + w.id + '" aria-label="Удалить работу">' + (c ? 'Удалить?' : '×') + '</button></div></div>';
+  });
+  h += '</div><button class="btn dashed" data-act="addwork">+ Добавить работу</button>' +
+    '<p class="hint">Кнопка «₽/м²» переключает единицу: м², шт, м, м³, компл. Чтобы удалить строку, нажми × два раза.</p>';
+  $main.innerHTML = h; $bar.hidden = true;
+  $main.querySelectorAll('textarea.pname').forEach(grow);
+}
+function grow(t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 4 + 'px'; }
+
+/* ---------- Профиль ---------- */
+function renderProfile() {
+  var p = S.profile;
+  function f(id, key, label, ph) { return '<label class="field" for="' + id + '">' + label + '<input class="inp" id="' + id + '" data-pf="' + key + '" value="' + esc(p[key]) + '" placeholder="' + esc(ph) + '"></label>'; }
+  var cp = profById(S.prof);
+  var h = '<div class="head"><p class="eyebrow">Это увидит клиент в КП</p><h1>Профиль</h1></div>';
+  h += '<div class="panel pad"><div class="profrow"><div style="min-width:0"><p class="eyebrow">Профессия</p><h2>' + esc(cp ? cp.name : 'Не выбрана') + '</h2></div><button class="btn soft sm" data-act="changeprof">Сменить</button></div></div>';
+  h += '<div class="panel pad"><div class="logo-row"><div class="logo-box">' + (p.logo ? '<img alt="Логотип" src="' + p.logo + '">' : 'лого') + '</div>' +
+    '<div class="btns" style="flex:1"><label class="btn ghost sm file-label">Загрузить логотип<input type="file" id="f-logo" accept="image/*"></label>' +
+    (p.logo ? '<button class="btn ghost sm" data-act="nologo">Убрать</button>' : '') + '</div></div>' +
+    f('pf-name', 'name', 'Имя или название', 'Иван Петров') + f('pf-trade', 'trade', 'Чем занимаешься', 'Укладка плитки') + f('pf-phone', 'phone', 'Телефон', '+7 900 000-00-00') + '</div>';
+  h += '<div class="panel pad"><h2>Условия по умолчанию</h2>' + f('pf-term', 'term', 'Срок', '5–7 рабочих дней') + f('pf-war', 'warranty', 'Гарантия', '12 месяцев') + f('pf-pre', 'prepay', 'Предоплата', '30% на материалы') +
+    '<label class="field" for="pf-note">Примечание внизу КП<textarea class="inp" id="pf-note" data-pf="note" placeholder="Например: цена действительна 14 дней">' + esc(p.note) + '</textarea></label></div>';
+  h += '<div class="panel pad"><h2>Резервная копия</h2><p class="hint">Все данные хранятся только на этом телефоне. Сохраняй копию, чтобы ничего не потерять при смене телефона.</p>' +
+    '<div class="btns"><button class="btn ghost sm" data-act="backup">Сохранить копию</button><label class="btn ghost sm file-label">Восстановить<input type="file" id="f-restore" accept=".json,application/json"></label></div></div>';
+  $main.innerHTML = h; $bar.hidden = true;
+}
+
+/* ---------- PDF ---------- */
+function kpFileName(kp) { return ('КП_' + kp.no + '_' + (kp.client || 'клиент')).replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_').slice(0, 60) + '.pdf'; }
+function deliver(blob, name) {
+  var file;
+  try { file = new File([blob], name, { type: blob.type }); } catch (e) {}
+  if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+    return navigator.share({ files: [file], title: name }).catch(function (err) { if (err && err.name !== 'AbortError') download(blob, name); });
+  }
+  download(blob, name);
+}
+function download(blob, name) {
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  toast('Файл сохранён в «Загрузки»');
+}
+function loadImg(src) {
+  return new Promise(function (ok) { if (!src) return ok(null); var im = new Image(); im.onload = function () { ok(im); }; im.onerror = function () { ok(null); }; im.src = src; });
+}
+/* Рисует КП на страницах A4 (холсты) — сам, без библиотек */
+function drawKp(kp, logo) {
+  var PW = 595.28, PH = 841.89, K = 2.5, M = 48, BOTTOM = PH - 48;
+  var FONT = 'system-ui, -apple-system, Roboto, "Segoe UI", Arial, sans-serif';
+  var INK = '#15181C', MUTED = '#555D66', LINE = '#DADDE1', TINT = '#F3F5F7';
+  var pages = [], ctx, y;
+  function newPage() {
+    var c = document.createElement('canvas'); c.width = Math.round(PW * K); c.height = Math.round(PH * K);
+    ctx = c.getContext('2d'); ctx.scale(K, K); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, PW, PH);
+    ctx.textBaseline = 'alphabetic'; pages.push(c); y = M;
+  }
+  function font(size, w) { ctx.font = (w || 500) + ' ' + size + 'px ' + FONT; }
+  function txt(s, x, yy, size, w, color, align) { font(size, w); ctx.fillStyle = color || INK; ctx.textAlign = align || 'left'; ctx.fillText(s, x, yy); }
+  function wrap(s, maxW, size, w) {
+    font(size, w); var out = [];
+    String(s).split('\n').forEach(function (para) {
+      var words = para.split(/\s+/).filter(Boolean), line = '';
+      if (!words.length) { out.push(''); return; }
+      words.forEach(function (word) {
+        var test = line ? line + ' ' + word : word;
+        if (ctx.measureText(test).width <= maxW) { line = test; return; }
+        if (line) out.push(line);
+        while (ctx.measureText(word).width > maxW && word.length > 1) {
+          var i = word.length; while (i > 1 && ctx.measureText(word.slice(0, i)).width > maxW) i--;
+          out.push(word.slice(0, i)); word = word.slice(i);
+        }
+        line = word;
+      });
+      out.push(line);
+    });
+    return out;
+  }
+  function ensure(h) { if (y + h > BOTTOM) newPage(); }
+  function hline(yy, w, color) { ctx.fillStyle = color || LINE; ctx.fillRect(M, yy, PW - 2 * M, w || 0.8); }
+  function rrect(x, yy, w, h, r, color) {
+    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + r, yy); ctx.arcTo(x + w, yy, x + w, yy + h, r); ctx.arcTo(x + w, yy + h, x, yy + h, r);
+    ctx.arcTo(x, yy + h, x, yy, r); ctx.arcTo(x, yy, x + w, yy, r); ctx.closePath(); ctx.fill();
+  }
+
+  newPage();
+  var p = kp.profile || S.profile, W = PW - 2 * M;
+  var logoW = logo ? 60 : 0;
+  // Шапка: мастер
+  var nameLines = wrap(p.name || '[Имя мастера]', W - logoW - 16, 18, 800);
+  var top = y;
+  nameLines.forEach(function (l) { y += 20; txt(l, M, y, 18, 800); });
+  [p.trade, p.phone || '[Телефон]'].forEach(function (s) { if (!s) return; wrap(s, W - logoW - 16, 11.5, 600).forEach(function (l) { y += 16; txt(l, M, y, 11.5, 600, MUTED); }); });
+  if (logo) {
+    var r = Math.min(60 / logo.width, 60 / logo.height), lw = logo.width * r, lh = logo.height * r;
+    ctx.drawImage(logo, PW - M - lw, top + (60 - lh) / 2, lw, lh); y = Math.max(y, top + 60);
+  }
+  y += 18; hline(y, 2, INK); y += 30;
+  // Заголовок
+  wrap('Коммерческое предложение № ' + kp.no, W, 21, 800).forEach(function (l, i) { if (i) y += 26; txt(l, M, y, 21, 800); });
+  var sub = (kp.client || 'Клиент') + (kp.address ? ' · ' + kp.address : '') + ' · ' + kp.date;
+  wrap(sub, W, 11.5, 600).forEach(function (l) { y += 17; txt(l, M, y, 11.5, 600, MUTED); });
+  y += 28;
+  // Таблица
+  var xQty = PW - M - 110, xSum = PW - M, nameW = W - 110 - 80 - 12;
+  function head() { txt('РАБОТА', M, y, 9, 800, MUTED); txt('КОЛ-ВО', xQty, y, 9, 800, MUTED, 'right'); txt('СУММА', xSum, y, 9, 800, MUTED, 'right'); y += 8; hline(y); }
+  head();
+  var rows = kp.lines.map(function (l) { return { name: l.name, sub: money(l.price) + ' за ' + l.unit, qty: qfmt(l.qty) + ' ' + l.unit, sum: money(l.sum) }; });
+  if (kp.mat > 0) rows.push({ name: kp.matLabel || 'Материалы', sub: '', qty: '', sum: money(kp.mat) });
+  rows.forEach(function (r) {
+    var nl = wrap(r.name, nameW, 12.5, 700), h = nl.length * 17 + (r.sub ? 15 : 0) + 18;
+    if (y + h > BOTTOM) { newPage(); head(); }
+    var yy = y + 6;
+    nl.forEach(function (l, i) { yy += 17; txt(l, M, yy, 12.5, 700); if (i === 0) { txt(r.qty, xQty, yy, 12, 600, MUTED, 'right'); txt(r.sum, xSum, yy, 12.5, 700, INK, 'right'); } });
+    if (r.sub) { yy += 15; txt(r.sub, M, yy, 10, 600, MUTED); }
+    y = yy + 11; hline(y);
+  });
+  // Итого
+  ensure(50); y += 34; txt('Итого', M, y, 14, 800); txt(money(kp.total), xSum, y + 2, 24, 800, INK, 'right'); y += 22;
+  // Условия
+  var terms = [];
+  if (p.term) terms.push('Срок: ' + p.term);
+  if (p.warranty) terms.push('Гарантия на работы: ' + p.warranty);
+  if (p.prepay) terms.push('Предоплата: ' + p.prepay);
+  if (terms.length) {
+    var tl = []; terms.forEach(function (t) { tl = tl.concat(wrap(t, W - 28, 11.5, 600)); });
+    var th = tl.length * 18 + 18; ensure(th + 10); y += 6;
+    rrect(M, y, W, th, 8, TINT); var ty = y + 9;
+    tl.forEach(function (l) { ty += 18; txt(l, M + 14, ty - 4, 11.5, 600); }); y += th;
+  }
+  if (p.note) { y += 10; wrap(p.note, W, 10.5, 600).forEach(function (l) { ensure(16); y += 15; txt(l, M, y, 10.5, 600, MUTED); }); }
+  pages.forEach(function (c) { ctx = c.getContext('2d'); txt('Сделано в приложении «Смета и КП» · theodorestoic.github.io', PW / 2, PH - 22, 7.5, 600, '#A3A9B0', 'center'); });
+  return pages;
+}
+/* Упаковывает картинки страниц в PDF-файл */
+function pagesToPdf(pages) {
+  var enc = new TextEncoder(), parts = [], offs = [], len = 0, PW = 595.28, PH = 841.89;
+  function add(x) { var b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; }
+  function obj(n, body) { offs[n] = len; add(n + ' 0 obj\n'); body(); add('\nendobj\n'); }
+  var n = pages.length, kids = [];
+  for (var i = 0; i < n; i++) kids.push((3 + i * 3) + ' 0 R');
+  add('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'.replace(/[\xE2\xE3\xCF\xD3]/g, 'a'));
+  obj(1, function () { add('<< /Type /Catalog /Pages 2 0 R >>'); });
+  obj(2, function () { add('<< /Type /Pages /Kids [' + kids.join(' ') + '] /Count ' + n + ' >>'); });
+  pages.forEach(function (c, i) {
+    var pn = 3 + i * 3, cn = pn + 1, im = pn + 2;
+    var b64 = c.toDataURL('image/jpeg', 0.9).split(',')[1], bin = atob(b64), jpg = new Uint8Array(bin.length);
+    for (var j = 0; j < bin.length; j++) jpg[j] = bin.charCodeAt(j);
+    var cs = 'q ' + PW + ' 0 0 ' + PH + ' 0 0 cm /Im0 Do Q';
+    obj(pn, function () { add('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + PW + ' ' + PH + '] /Resources << /XObject << /Im0 ' + im + ' 0 R >> >> /Contents ' + cn + ' 0 R >>'); });
+    obj(cn, function () { add('<< /Length ' + cs.length + ' >>\nstream\n' + cs + '\nendstream'); });
+    obj(im, function () { add('<< /Type /XObject /Subtype /Image /Width ' + c.width + ' /Height ' + c.height + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpg.length + ' >>\nstream\n'); add(jpg); add('\nendstream'); });
+  });
+  var total = 3 + n * 3, xref = len;
+  var x = 'xref\n0 ' + total + '\n0000000000 65535 f \n';
+  for (var k = 1; k < total; k++) x += String(offs[k]).padStart(10, '0') + ' 00000 n \n';
+  add(x + 'trailer\n<< /Size ' + total + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
+  return new Blob(parts, { type: 'application/pdf' });
+}
+function makePdf(kp, btn) {
+  if (PREVIEW) { toast('PDF заработает в версии на твоём сайте. Здесь только проверка экранов.'); return; }
+  btn.disabled = true; var label = btn.textContent; btn.textContent = 'Готовлю PDF…';
+  var done = function () { btn.disabled = false; btn.textContent = label; };
+  loadImg((kp.profile || S.profile).logo).then(function (logo) {
+    var blob = pagesToPdf(drawKp(kp, logo));
+    done(); deliver(blob, kpFileName(kp));
+  }).catch(function () { done(); toast('Не получилось собрать PDF. Попробуй ещё раз.'); });
+}
+
+/* ---------- Навигация ---------- */
+/* ---------- Выбор профессии ---------- */
+function renderPick() {
+  var first = !S.prof, h;
+  if (pending) {
+    var p = profById(pending);
+    h = '<div class="head"><p class="eyebrow">Смена профессии</p><h1>' + esc(p.name) + '</h1></div>' +
+      '<div class="panel pad"><h2>Что сделать с прайсом?</h2><p class="hint">Стандартный прайс для «' + esc(p.name) + '» заменит твой список работ. Сохранённые КП не изменятся.</p>' +
+      '<button class="btn primary block" data-act="pickreplace">Заменить прайс на стандартный</button>' +
+      '<button class="btn ghost block" data-act="pickkeep">Оставить мой прайс</button>' +
+      '<button class="btn ghost block" data-act="pickback">Назад</button></div>';
+  } else {
+    h = '<div class="head"><p class="eyebrow">' + (first ? 'Первый запуск' : 'Профиль') + '</p><h1>Чем занимаешься?</h1></div>' +
+      '<p class="hint">Загружу готовый прайс для твоей работы. Цены в нём примерные, их можно поменять во вкладке «Прайс».</p><div class="profs">';
+    PROFS.forEach(function (p) {
+      var cur = S.prof === p.id;
+      h += '<button class="prof' + (cur ? ' cur' : '') + '" data-prof="' + p.id + '"' + (cur ? ' aria-current="true"' : '') + '><b>' + esc(p.name) + '</b><span>' + (p.id === 'own' ? 'Пустой прайс, заполню сам' : p.works.length + ' работ в прайсе') + '</span></button>';
+    });
+    h += '</div>';
+    if (!first) h += '<button class="btn ghost block" data-act="pickcancel">Отмена</button>';
+  }
+  $main.innerHTML = h; $bar.hidden = true;
+}
+
+function render() {
+  document.getElementById('tabs').hidden = pick;
+  if (pick) { renderPick(); $main.scrollTop = 0; return; }
+  document.querySelectorAll('#tabs button').forEach(function (b) { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  if (view) { var kp = S.history.find(function (k) { return k.id === view; }); if (kp) { renderKp(kp); $main.scrollTop = 0; return; } view = null; }
+  ({ calc: renderCalc, history: renderHistory, price: renderPrice, profile: renderProfile })[tab]();
+}
+function go(t) { tab = t; view = null; confirmId = null; delConfirm = null; render(); $main.scrollTop = 0; }
+
+document.getElementById('tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) go(b.dataset.tab); });
+
+document.addEventListener('input', function (e) {
+  var t = e.target;
+  if (tab === 'calc' && !view && (t.dataset.d || t.dataset.q)) return onCalcInput(e);
+  if (t.dataset.pn) { S.works.find(function (w) { return w.id === t.dataset.pn; }).name = t.value.replace(/\n/g, ' '); grow(t); save(); }
+  if (t.dataset.pp) { S.works.find(function (w) { return w.id === t.dataset.pp; }).price = t.value; save(); }
+  if (t.dataset.pf) { S.profile[t.dataset.pf] = t.value; save(); }
+});
+document.addEventListener('focusin', function (e) { if (S.sample && e.target.classList && e.target.classList.contains('inp')) { S.sample = false; save(); } });
+
+document.addEventListener('change', function (e) {
+  var t = e.target;
+  if (t.id === 'f-logo' && t.files[0]) {
+    var r = new FileReader();
+    r.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var m = 256, k = Math.min(1, m / Math.max(img.width, img.height));
+        var c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        S.profile.logo = c.toDataURL('image/png'); save(); render(); toast('Логотип добавлен');
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(t.files[0]);
+  }
+  if (t.id === 'f-restore' && t.files[0]) {
+    var rr = new FileReader();
+    rr.onload = function () {
+      try { var d = JSON.parse(rr.result); if (!d.works || !d.profile) throw 0; S = d; save(); go('calc'); toast('Данные восстановлены'); }
+      catch (err) { toast('Это не файл копии из этого приложения'); }
+    };
+    rr.readAsText(t.files[0]);
+  }
+});
+
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  var act = b.dataset.act;
+  if (b.dataset.goto) return go(b.dataset.goto);
+  if (b.dataset.open) { view = b.dataset.open; delConfirm = null; render(); return; }
+  if (b.dataset.unit) {
+    var w = S.works.find(function (x) { return x.id === b.dataset.unit; });
+    w.unit = UNITS[(UNITS.indexOf(w.unit) + 1) % UNITS.length]; save();
+    b.textContent = '₽/' + w.unit; b.setAttribute('aria-label', 'Единица: ' + w.unit + ', сменить'); return;
+  }
+  if (b.dataset.del) {
+    if (confirmId === b.dataset.del) { S.works = S.works.filter(function (x) { return x.id !== b.dataset.del; }); delete S.draft.qty[b.dataset.del]; confirmId = null; save(); }
+    else confirmId = b.dataset.del;
+    renderPrice(); return;
+  }
+  if (act === 'make') return makeKp();
+  if (act === 'reset') { S.draft = { client: '', address: '', qty: {}, mat: '', editId: null }; S.sample = false; save(); renderCalc(); $main.scrollTop = 0; return; }
+  if (act === 'back') { view = null; delConfirm = null; render(); return; }
+  if (act === 'delask') { delConfirm = b.dataset.id; render(); var bt = $main.querySelector('[data-act="delkp"]'); if (bt) bt.scrollIntoView({ block: 'center' }); return; }
+  if (act === 'delno') { delConfirm = null; render(); return; }
+  if (act === 'delkp') {
+    var dk = S.history.find(function (k) { return k.id === b.dataset.id; });
+    S.history = S.history.filter(function (k) { return k.id !== b.dataset.id; });
+    if (S.draft.editId === b.dataset.id) S.draft.editId = null;
+    save(); delConfirm = null; go('history'); toast('КП № ' + (dk ? dk.no : '') + ' удалено'); return;
+  }
+  if (act === 'pdf') { var kp = S.history.find(function (k) { return k.id === b.dataset.id; }); if (kp) makePdf(kp, b); return; }
+  if (act === 'edit' || act === 'dup') {
+    var src = S.history.find(function (k) { return k.id === b.dataset.id; }); if (!src) return;
+    var qty = {};
+    src.lines.forEach(function (l) {
+      var w2 = S.works.find(function (x) { return x.name === l.name; });
+      if (!w2) { w2 = { id: uid(), name: l.name, unit: l.unit, price: l.price }; S.works.push(w2); }
+      qty[w2.id] = String(l.qty);
+    });
+    S.draft = { client: act === 'dup' ? '' : src.client, address: act === 'dup' ? '' : src.address, qty: qty, mat: String(src.mat || ''), editId: act === 'edit' ? src.id : null };
+    save(); go('calc'); if (act === 'dup') toast('Скопировано. Впиши нового клиента.'); return;
+  }
+  if (act === 'addwork') {
+    var nw = { id: uid(), name: '', unit: 'м²', price: '' }; S.works.push(nw); save(); renderPrice();
+    var inp = document.getElementById('n-' + nw.id); if (inp) { inp.focus(); inp.scrollIntoView({ block: 'center' }); } return;
+  }
+  if (b.dataset.prof) {
+    var pr = profById(b.dataset.prof);
+    if (!S.prof || !S.works.length || S.works.every(function (w) { return !w.name; })) {
+      applyProf(pr, true); pick = false; go('price');
+      toast('Прайс «' + pr.name + '» загружен. Поправь цены под себя.'); return;
+    }
+    if (pr.id === S.prof) { pick = false; render(); return; }
+    pending = pr.id; render(); return;
+  }
+  if (act === 'changeprof') { pick = true; pending = null; render(); return; }
+  if (act === 'pickcancel') { pick = false; render(); return; }
+  if (act === 'pickback') { pending = null; render(); return; }
+  if (act === 'pickreplace' || act === 'pickkeep') {
+    var pp = profById(pending); applyProf(pp, act === 'pickreplace'); pending = null; pick = false;
+    if (act === 'pickreplace') { go('price'); toast('Прайс «' + pp.name + '» загружен'); } else { render(); toast('Профессия изменена, прайс оставлен'); }
+    return;
+  }
+  if (act === 'nologo') { S.profile.logo = ''; save(); render(); return; }
+  if (act === 'backup') {
+    if (PREVIEW) { toast('Копия заработает в версии на твоём сайте'); return; }
+    download(new Blob([JSON.stringify(S)], { type: 'application/json' }), 'kp-kopiya-' + new Date().toISOString().slice(0, 10) + '.json'); return;
+  }
+});
+
+if (!PREVIEW && 'serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+render();
+})();
+</script>
+
+</body>
+</html>

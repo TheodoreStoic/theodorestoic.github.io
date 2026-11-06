@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.theodorestoic.smeta",
+        "sha256_cert_fingerprints": ["CB:F7:E7:0F:E7:5E:4C:A1:01:8A:AF:ED:DE:B9:A5:01:F4:B8:97:EE:19:2E:76:8B:0A:41:92:91:B8:02:5E:50"]
+      }
+    }]

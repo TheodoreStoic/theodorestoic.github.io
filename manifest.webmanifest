@@ -1,19 +1,19 @@
 {
- "id": "/",
- "name": "Смета и КП",
- "short_name": "Смета и КП",
- "description": "Смета и коммерческое предложение для мастеров: считает работы и собирает PDF для клиента",
+ "id": "./",
+ "name": "Шейкер — тренажёр бармена",
+ "short_name": "Шейкер",
+ "description": "Тренажёр бармена: собери классический коктейль по рецепту IBA — посуда, порядок, дозировки, метод и украшение",
  "lang": "ru",
  "start_url": "./",
  "scope": "./",
  "orientation": "portrait",
  "categories": [
-  "business",
-  "productivity"
+  "education",
+  "food"
  ],
  "display": "standalone",
- "background_color": "#EDEFF1",
- "theme_color": "#1F5FA8",
+ "background_color": "#14110F",
+ "theme_color": "#14110F",
  "icons": [
   {
    "src": "icon-192.png",

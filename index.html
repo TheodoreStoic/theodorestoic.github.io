@@ -3,661 +3,654 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1F5FA8">
+<meta name="theme-color" content="#14110F">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:0}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
-<title>Смета и КП</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-
+<style>:root{padding-top:env(safe-area-inset-top,0px)}</style>
+<title>Шейкер — тренажёр бармена</title>
 <style>
-/* Layout: one-screen phone tool — scrolling work area, total bar and tab bar pinned at the bottom */
-:root {
-  --bg: #EDEFF1; --surface: #FFFFFF; --sunk: #F4F5F6; --line: #D8DCE1;
-  --fg: #15181C; --muted: #545C65; --accent: #1F5FA8; --accent-soft: #E0E9F4;
-  --accent-fg: #FFFFFF; --ok: #22683F; --danger: #A3311E;
-  --font: system-ui, -apple-system, Roboto, "Segoe UI", Arial, sans-serif;
-}
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #111317; --surface: #1B1F24; --sunk: #15181C; --line: #2D333A;
-  --fg: #ECEEF0; --muted: #A2AAB3; --accent: #74A7E8; --accent-soft: #1D2B3C;
-  --accent-fg: #0C1520; --ok: #7CCB98; --danger: #F2907B; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #111317; --surface: #1B1F24; --sunk: #15181C; --line: #2D333A;
-  --fg: #ECEEF0; --muted: #A2AAB3; --accent: #74A7E8; --accent-soft: #1D2B3C;
-  --accent-fg: #0C1520; --ok: #7CCB98; --danger: #F2907B; color-scheme: dark }
-
-html, body { height: 100%; }
-body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 16px; -webkit-tap-highlight-color: transparent; }
-* { box-sizing: border-box; }
-button, input, textarea { font: inherit; color: inherit; }
-button { cursor: pointer; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-#app { height: 100%; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; }
-main { flex: 1; overflow-y: auto; padding-block: 20px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 14px; }
-.eyebrow { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
-h1 { margin: 0; font-size: 27px; font-weight: 800; text-wrap: balance; }
-h2 { margin: 0; font-size: 18px; font-weight: 800; }
-.head { display: flex; flex-direction: column; gap: 2px; }
-.row-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
-.panel { background: var(--surface); border-radius: 18px; padding: 4px 16px; display: flex; flex-direction: column; }
-.panel.pad { padding: 16px; gap: 12px; }
-.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700; color: var(--muted); }
-.inp { height: 48px; border-radius: 12px; border: 2px solid var(--line); background: var(--sunk); padding: 0 12px; font-size: 16px; font-weight: 700; color: var(--fg); width: 100%; min-width: 0; }
-.inp:focus { border-color: var(--accent); outline: none; }
-.num { text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
-textarea.inp { height: auto; min-height: 76px; padding: 10px 12px; resize: vertical; }
-.line { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-.line:last-child { border-bottom: none; }
-.line .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.line .t { font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
-.line .s { font-size: 13px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
-.line.on .t { color: var(--accent); }
-.unit { font-size: 14px; font-weight: 700; color: var(--muted); min-width: 22px; }
-.btn { height: 52px; border-radius: 14px; border: none; padding: 0 20px; font-size: 16px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-.btn.primary { background: var(--accent); color: var(--accent-fg); }
-.btn.ghost { background: transparent; border: 2px solid var(--line); color: var(--fg); }
-.btn.soft { background: var(--accent-soft); color: var(--accent); }
-.btn.dashed { background: transparent; border: 2px dashed var(--line); color: var(--fg); width: 100%; }
-.btn.danger { background: transparent; border: 2px solid var(--danger); color: var(--danger); }
-.btn.sm { height: 44px; padding: 0 14px; font-size: 15px; }
-.btn.block { width: 100%; }
-.iconbtn { width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
-.iconbtn.confirm { border-color: var(--danger); color: var(--danger); width: auto; padding: 0 10px; font-size: 13px; }
-.pline { display: flex; flex-direction: column; gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--line); }
-.pline:last-child { border-bottom: none; }
-.pctl { display: flex; gap: 8px; align-items: center; }
-textarea.pname { min-height: 48px; height: auto; resize: none; overflow: hidden; line-height: 1.35; padding: 12px; font-size: 16px; }
-.unitbtn { height: 44px; min-width: 62px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 800; flex-shrink: 0; }
-.btns { display: flex; gap: 10px; flex-wrap: wrap; }
-.btns > * { flex: 1 1 140px; }
-.hint { margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); line-height: 1.45; }
-
-.bar { background: var(--surface); border-top: 1px solid var(--line); padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; align-items: center; gap: 14px; }
-.bar .tot { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-.bar .tot small { font-size: 13px; font-weight: 700; color: var(--muted); }
-.bar .tot b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
-nav.tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; background: var(--surface); border-top: 1px solid var(--line); padding-top: 6px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
-nav.tabs button { height: 52px; border: none; border-radius: 12px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 800; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
-nav.tabs button svg { width: 22px; height: 22px; }
-nav.tabs button[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
-
-.hist { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); background: none; border-left: none; border-right: none; border-top: none; text-align: left; width: 100%; }
-.hist:last-child { border-bottom: none; }
-.hist .no { font-size: 13px; font-weight: 800; color: var(--accent); background: var(--accent-soft); border-radius: 8px; padding: 4px 8px; font-variant-numeric: tabular-nums; }
-.hist .sum { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.empty { padding: 28px 8px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-
-.logo-row { display: flex; align-items: center; gap: 14px; }
-.profs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.prof { min-height: 84px; border-radius: 16px; border: 2px solid var(--line); background: var(--surface); padding: 14px; text-align: left; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
-.prof b { font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
-.prof span { font-size: 13px; font-weight: 600; color: var(--muted); }
-.prof.cur { border-color: var(--accent); background: var(--accent-soft); }
-.prof.cur b { color: var(--accent); }
-.profrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.logo-box { width: 64px; height: 64px; border-radius: 14px; background: var(--sunk); border: 2px dashed var(--line); display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
-.logo-box img { width: 100%; height: 100%; object-fit: contain; }
-.file-label { position: relative; overflow: hidden; }
-.file-label input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-
-/* The client document: fixed paper palette in both themes, because it becomes the PDF */
-.paper-wrap { background: var(--sunk); border-radius: 18px; padding: 12px; }
-.doc { --p-ink: #15181C; --p-muted: #555D66; --p-line: #DADDE1; --p-tint: #F3F5F7;
-  background: #FFFFFF; color: var(--p-ink); border-radius: 4px; padding: 26px 22px; display: flex; flex-direction: column; gap: 16px; font-family: var(--font); font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-.doc .top { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
-.doc .who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.doc .who b { font-size: 17px; font-weight: 800; }
-.doc .who span { color: var(--p-muted); font-weight: 600; font-size: 13px; overflow-wrap: anywhere; }
-.doc .lg { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; }
-.doc .title { display: flex; flex-direction: column; gap: 3px; border-top: 2px solid var(--p-ink); padding-top: 12px; }
-.doc .title b { font-size: 20px; font-weight: 800; }
-.doc .title span { color: var(--p-muted); font-weight: 600; font-size: 13px; }
-.doc table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.doc th { text-align: left; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--p-muted); font-weight: 800; padding: 0 0 6px; border-bottom: 1px solid var(--p-line); }
-.doc td { padding: 8px 0; border-bottom: 1px solid var(--p-line); vertical-align: top; font-weight: 600; }
-.doc td.r, .doc th.r { text-align: right; white-space: nowrap; padding-left: 10px; }
-.doc td.q { color: var(--p-muted); white-space: nowrap; padding-left: 10px; }
-.doc .total { display: flex; justify-content: space-between; align-items: baseline; font-variant-numeric: tabular-nums; }
-.doc .total b { font-size: 16px; font-weight: 800; }
-.doc .total strong { font-size: 24px; font-weight: 800; }
-.doc .terms { background: var(--p-tint); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; }
-.doc .note { color: var(--p-muted); font-size: 12px; font-weight: 600; white-space: pre-line; }
-#pdf-stage { position: fixed; left: -10000px; top: 0; width: 794px; }
-#pdf-stage .doc { border-radius: 0; box-shadow: none; padding: 56px 60px; font-size: 15px; gap: 20px; }
-
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(150px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 15px; max-width: calc(100% - 32px); z-index: 20; text-align: center; }
-@media (prefers-reduced-motion: no-preference) { .toast { animation: rise .2s ease-out; } @keyframes rise { from { opacity: 0; transform: translate(-50%, 8px); } } }
+:root{--bg:#14110F;--card:#1F1A17;--card2:#2A241F;--line:#3A322B;--text:#F4EDE3;--muted:#B8AC9C;--acc:#E8A33D;--accInk:#14110F;--ok:#9BE3A5;--okBg:#1F3A26;--bad:#FFB4A6;--badBg:#4A211B;--heart:#FF8A73}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--text);font:500 16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+#app{max-width:480px;margin:0 auto;min-height:100vh;padding:16px 16px 32px;display:flex;flex-direction:column;gap:16px}
+h1{margin:0;font-size:26px;font-weight:800;line-height:1.2}
+h2{margin:0;font-size:18px;font-weight:800}
+p{margin:0}
+.muted{color:var(--muted)}
+.eyebrow{font-size:13px;font-weight:800;letter-spacing:.06em;color:var(--acc);text-transform:uppercase}
+.card{background:var(--card);border-radius:20px;padding:16px}
+.row{display:flex;align-items:center;gap:12px}
+.grow{flex:1;min-width:0}
+.btn{min-height:52px;border-radius:16px;border:none;background:var(--acc);color:var(--accInk);font-weight:800;font-size:17px;padding:0 18px;width:100%}
+.btn.sec{background:var(--card2);color:var(--text)}
+.icon{width:44px;height:44px;border-radius:22px;border:none;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat{display:flex;align-items:center;gap:6px;font-weight:800;font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{min-height:56px;border-radius:16px;border:2px solid var(--line);background:var(--card);font-weight:700;font-size:16px;padding:8px 10px;text-align:center}
+.opt:active{border-color:var(--acc)}
+.opt.wide{grid-column:1/-1;text-align:left;padding:10px 14px}
+.opt .sub{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-top:2px}
+.bar{flex:1;height:14px;border-radius:7px;background:var(--card2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:7px;transition:width .25s}
+.tile{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:none;border-radius:16px;padding:12px 14px;min-height:60px}
+.tile[disabled]{opacity:.45;cursor:default}
+.tile .nm{font-weight:800;font-size:17px}
+.stars{display:flex;gap:2px}
+.msg{border-radius:16px;padding:12px 16px;font-weight:700;min-height:48px;display:flex;align-items:center;background:var(--card);color:var(--muted)}
+.msg.ok{background:var(--okBg);color:var(--ok)}
+.msg.bad{background:var(--badBg);color:var(--bad)}
+.stage{display:flex;align-items:center;gap:14px;min-height:150px}
+.stage svg{flex-shrink:0}
+.steps{margin:0;padding:0 0 0 22px;display:flex;flex-direction:column;gap:6px}
+.chip{display:inline-block;background:var(--card2);border-radius:10px;padding:4px 10px;font-size:14px;font-weight:700;margin:2px 4px 2px 0}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:none;border-radius:16px;padding:14px 16px;width:100%;text-align:left}
+.sw{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative;flex-shrink:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:11px;background:var(--text);transition:left .2s}
+.sw.on{background:var(--acc)}.sw.on::after{left:23px;background:var(--accInk)}
+.foot{font-size:13px;color:var(--muted);text-align:center}
+#app.withtabs{padding-bottom:96px}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:8px 16px calc(8px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;gap:8px;z-index:5}
+.tabs button{flex:1;max-width:220px;min-height:52px;border:none;border-radius:14px;background:transparent;color:var(--muted);font-weight:800;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.tabs button.on{background:var(--card2);color:var(--acc)}
+.scene{display:block;width:100%;height:auto;border-radius:20px;background:#1A1512}
+.scene [data-act]{cursor:pointer}
+.up{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;padding:12px 14px}
+.up .btn{width:auto;min-height:44px;font-size:15px;padding:0 14px;white-space:nowrap}
+.up .own{color:var(--ok);font-weight:800;font-size:15px;white-space:nowrap}
+.coin{display:inline-flex;align-items:center;gap:5px;font-weight:800}
+.glassopt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px}
+.bottles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.bt{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:10px 4px;font-weight:700;font-size:13px;line-height:1.2;min-height:112px}
+.bt:active{border-color:var(--acc)}
+.pourstage{position:relative;display:flex;flex-direction:column;align-items:center;padding-top:56px}
+.btlwrap{position:absolute;top:6px;left:50%;margin-left:46px;transform-origin:20% 90%;transition:transform .25s}
+.btlwrap.on{transform:rotate(-115deg) translate(-6px,-20px)}
+.stream{display:none;position:absolute;left:calc(50% - 18px);top:92px;width:5px;height:112px;border-radius:3px}
+.btlwrap.on ~ .stream{display:block}
+.cnt{font-size:34px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.hold{min-height:72px;width:100%;border:none;border-radius:20px;background:var(--acc);color:var(--accInk);font-weight:800;font-size:19px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+.hold.sec{background:var(--card2);color:var(--text)}
+.hold.on{transform:scale(.97);filter:brightness(1.1)}
+.gest{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:280px;width:100%;background:var(--card);border:2px dashed var(--line);border-radius:20px;touch-action:none;user-select:none;-webkit-user-select:none;padding:16px;color:var(--text)}
+.gest svg{transition:transform .08s}
+.gtxt{font-weight:700;color:var(--muted);text-align:center}
+.shake{animation:sh .3s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 </style>
-
 </head>
 <body>
-<div id="app">
-  <main id="main" aria-live="polite"></main>
-  <div id="bar" class="bar" hidden></div>
-  <nav class="tabs" id="tabs" aria-label="Разделы">
-    <button data-tab="calc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21 21 3"/><path d="m7 17-2-2M11 13l-2-2M15 9l-2-2M19 5l-2-2"/></svg>Замер</button>
-    <button data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Мои КП</button>
-    <button data-tab="price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Прайс</button>
-    <button data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Профиль</button>
-  </nav>
-</div>
-
+<div id="app"></div>
 <script>
-(function () {
 'use strict';
-var PREVIEW = false;
-var KEY = 'kp-app-v1';
-
-/* Профессии и стартовые прайсы. Цены примерные — мастер правит их под себя */
-var PROFS = [
-  { id: 'tile', name: 'Плиточник', trade: 'Укладка плитки', works: [
-    ['Демонтаж старой плитки', 'м²', 400], ['Выравнивание стен', 'м²', 450], ['Гидроизоляция', 'м²', 350],
-    ['Укладка плитки на стены', 'м²', 1300], ['Укладка плитки на пол', 'м²', 1200], ['Затирка швов', 'м²', 150],
-    ['Запил под 45°', 'м', 500], ['Короб из ГКЛ под плитку', 'м', 1200], ['Вывоз мусора', 'шт', 1500]] },
-  { id: 'elec', name: 'Электрик', trade: 'Электромонтажные работы', works: [
-    ['Штробление стен', 'м', 400], ['Прокладка кабеля', 'м', 120], ['Установка подрозетника', 'шт', 350],
-    ['Монтаж розетки или выключателя', 'шт', 350], ['Установка автомата', 'шт', 500], ['Сборка электрощита', 'шт', 6000],
-    ['Монтаж светильника', 'шт', 800], ['Подключение люстры', 'шт', 1500]] },
-  { id: 'plumb', name: 'Сантехник', trade: 'Сантехнические работы', works: [
-    ['Разводка водоснабжения', 'точка', 2500], ['Разводка канализации', 'точка', 2000], ['Установка унитаза', 'шт', 3000],
-    ['Монтаж инсталляции', 'шт', 6000], ['Установка раковины', 'шт', 2500], ['Установка смесителя', 'шт', 1500],
-    ['Установка ванны', 'шт', 5000], ['Установка водонагревателя', 'шт', 3500]] },
-  { id: 'finish', name: 'Отделочник', trade: 'Отделочные работы', works: [
-    ['Грунтовка стен', 'м²', 60], ['Штукатурка стен по маякам', 'м²', 600], ['Шпаклёвка под покраску', 'м²', 350],
-    ['Покраска стен', 'м²', 300], ['Поклейка обоев', 'м²', 350], ['Покраска потолка', 'м²', 350], ['Установка уголков', 'м', 150]] },
-  { id: 'floor', name: 'Полы', trade: 'Укладка напольных покрытий', works: [
-    ['Стяжка пола', 'м²', 600], ['Укладка подложки', 'м²', 50], ['Укладка ламината', 'м²', 400],
-    ['Укладка линолеума', 'м²', 250], ['Укладка паркетной доски', 'м²', 600], ['Монтаж плинтуса', 'м', 200], ['Установка порожка', 'шт', 300]] },
-  { id: 'ceil', name: 'Натяжные потолки', trade: 'Натяжные потолки', works: [
-    ['Полотно матовое', 'м²', 450], ['Монтаж профиля', 'м', 200], ['Установка светильника', 'шт', 400],
-    ['Закладная под люстру', 'шт', 600], ['Обвод трубы', 'шт', 300], ['Скрытый карниз', 'м', 1500]] },
-  { id: 'doors', name: 'Окна и двери', trade: 'Установка окон и дверей', works: [
-    ['Установка межкомнатной двери', 'шт', 4000], ['Установка входной двери', 'шт', 5000], ['Монтаж доборов', 'компл', 1000],
-    ['Монтаж наличников', 'компл', 800], ['Откосы', 'м', 900], ['Установка подоконника', 'шт', 1200], ['Москитная сетка', 'шт', 500]] },
-  { id: 'furn', name: 'Сборка мебели', trade: 'Сборка и установка мебели', works: [
-    ['Сборка кухни', 'м', 3500], ['Сборка шкафа', 'шт', 2500], ['Сборка кровати', 'шт', 2000],
-    ['Сборка комода', 'шт', 1200], ['Сборка стола', 'шт', 800], ['Навеска полки', 'шт', 400], ['Врезка мойки или варочной панели', 'шт', 1000]] },
-  { id: 'fence', name: 'Заборы', trade: 'Установка заборов и ворот', works: [
-    ['Установка столба', 'шт', 700], ['Забор из профнастила', 'м', 1500], ['Забор из сетки-рабицы', 'м', 600],
-    ['Установка ворот', 'шт', 8000], ['Установка калитки', 'шт', 4000], ['Демонтаж старого забора', 'м', 300]] },
-  { id: 'clean', name: 'Клининг', trade: 'Клининговые услуги', works: [
-    ['Генеральная уборка', 'м²', 120], ['Уборка после ремонта', 'м²', 180], ['Мойка окна', 'шт', 500],
-    ['Химчистка дивана', 'шт', 2500], ['Химчистка ковра', 'м²', 300], ['Мойка холодильника', 'шт', 800]] },
-  { id: 'tattoo', name: 'Тату-мастер', trade: 'Художественная татуировка', mat: 'Расходники',
-    terms: { term: '1 сеанс, точное время после согласования эскиза', warranty: 'бесплатная коррекция в течение 2 месяцев', prepay: '2 000 ₽ за бронь сеанса, входит в стоимость' },
-    works: [
-    ['Индивидуальный эскиз', 'шт', 3000], ['Мини-тату до 5 см', 'шт', 3000], ['Татуировка 5–10 см', 'шт', 6000],
-    ['Татуировка 10–15 см', 'шт', 10000], ['Татуировка 15–20 см', 'шт', 15000], ['Крупная работа', 'сеанс', 18000],
-    ['Работа по часам', 'час', 4000], ['Цвет (доплата)', 'шт', 3000], ['Перекрытие старой тату (доплата)', 'шт', 5000],
-    ['Коррекция после гарантии', 'шт', 1500]] },
-  { id: 'own', name: 'Другое', trade: '', works: [['', 'шт', '']] }
+const GLASS = { rocks: 'Рокс (олд фэшн)', highball: 'Хайбол', cocktail: 'Коктейльная (мартини)', flute: 'Флюте', wine: 'Винный бокал', mug: 'Медная кружка', hurricane: 'Харрикейн' };
+const METHOD = {
+  build: ['Билд', 'прямо в бокале со льдом'],
+  stir: ['Стир', 'в смесительном стакане со льдом'],
+  shake: ['Шейк', 'в шейкере со льдом'],
+  muddle: ['Мадл', 'подавить в бокале, потом лёд'],
+  blend: ['Бленд', 'в блендере со льдом']
+};
+const GROUPS = ['Билд: прямо в бокале', 'Шейк', 'Стир и мадл'];
+// Рецепты по спецификациям IBA (iba-world.com). s: [ингредиент, мл или текст] в порядке приготовления
+const D = [
+  { id: 'negroni', n: 'Негрони', grp: 0, g: ['rocks'], m: 'build', gar: ['Половинка дольки апельсина'], s: [['Джин', 30], ['Кампари', 30], ['Красный вермут', 30]] },
+  { id: 'americano', n: 'Американо', grp: 0, g: ['rocks'], m: 'build', gar: ['Полдольки апельсина и лимонная цедра'], s: [['Кампари', 30], ['Красный вермут', 30], ['Содовая', 'сплэш']] },
+  { id: 'cubalibre', n: 'Куба Либре', grp: 0, g: ['highball'], m: 'build', gar: ['Долька лайма'], s: [['Белый ром', 50], ['Кола', 120], ['Сок лайма', 10]] },
+  { id: 'mule', n: 'Московский мул', grp: 0, g: ['mug', 'rocks'], m: 'build', gar: ['Долька лайма'], s: [['Водка', 45], ['Имбирное пиво', 120], ['Сок лайма', 10]], tip: 'Подают в медной кружке или в роксе.' },
+  { id: 'sunrise', n: 'Текила Санрайз', grp: 0, g: ['highball'], m: 'build', gar: ['Половинка дольки апельсина', 'Апельсиновая цедра'], s: [['Текила', 45], ['Апельсиновый сок', 90], ['Гренадин', 15]], tip: 'Гренадин льют последним и не перемешивают: так получается «рассвет».' },
+  { id: 'sotb', n: 'Секс на пляже', grp: 0, g: ['highball'], m: 'build', gar: ['Половинка дольки апельсина'], s: [['Водка', 40], ['Персиковый ликёр', 20], ['Апельсиновый сок', 40], ['Клюквенный сок', 40]] },
+  { id: 'mimosa', n: 'Мимоза', grp: 0, g: ['flute'], m: 'build', gar: ['Апельсиновая цедра', 'Без украшения'], s: [['Апельсиновый сок', 75], ['Просекко', 75]], tip: 'Сначала сок, потом аккуратно игристое. Цедра по желанию.' },
+  { id: 'spritz', n: 'Шприц', grp: 0, g: ['wine'], m: 'build', gar: ['Долька апельсина'], s: [['Просекко', 90], ['Апероль', 60], ['Содовая', 'сплэш']] },
+  { id: 'blackrus', n: 'Чёрный русский', grp: 0, g: ['rocks'], m: 'build', gar: ['Без украшения'], s: [['Водка', 50], ['Кофейный ликёр', 20]], tip: 'Белый русский: сверху добавляют сливки.' },
+  { id: 'liit', n: 'Лонг Айленд', grp: 0, g: ['highball'], m: 'build', gar: ['Долька лимона', 'Без украшения'], s: [['Водка', 15], ['Текила', 15], ['Белый ром', 15], ['Джин', 15], ['Куантро', 15], ['Лимонный сок', 30], ['Сахарный сироп', 20], ['Кола', 'долить']] },
+  { id: 'daiquiri', n: 'Дайкири', grp: 1, g: ['cocktail'], m: 'shake', gar: ['Без украшения'], s: [['Белый ром', 60], ['Сок лайма', 20], ['Сахарная пудра', '2 барные ложки']], tip: 'Сначала размешать, чтобы растворился сахар, потом лёд и шейк.' },
+  { id: 'margarita', n: 'Маргарита', grp: 1, g: ['cocktail'], m: 'shake', gar: ['Соль на половине края', 'Без украшения'], s: [['Текила', 50], ['Трипл сек', 20], ['Сок лайма', 15]], tip: 'Соль на половине края по желанию.' },
+  { id: 'cosmo', n: 'Космополитен', grp: 1, g: ['cocktail'], m: 'shake', gar: ['Лимонная цедра'], s: [['Цитрусовая водка', 40], ['Куантро', 15], ['Сок лайма', 15], ['Клюквенный сок', 30]] },
+  { id: 'wsour', n: 'Виски сауэр', grp: 1, g: ['rocks'], m: 'shake', gar: ['Полдольки апельсина и вишня'], s: [['Бурбон', 45], ['Лимонный сок', 25], ['Сахарный сироп', 20], ['Яичный белок', 20]], tip: 'Белок по желанию. С белком шейкуют сильнее, чтобы была пена. Можно подать в бокале коблер без льда.' },
+  { id: 'sidecar', n: 'Сайдкар', grp: 1, g: ['cocktail'], m: 'shake', gar: ['Без украшения'], s: [['Коньяк', 50], ['Трипл сек', 20], ['Лимонный сок', 20]] },
+  { id: 'espresso', n: 'Эспрессо мартини', grp: 1, g: ['cocktail'], m: 'shake', gar: ['Без украшения'], s: [['Водка', 50], ['Кофейный ликёр', 30], ['Сахарный сироп', 10], ['Эспрессо', '1 шот']] },
+  { id: 'ginfizz', n: 'Джин Физз', grp: 1, g: ['highball'], m: 'shake', gar: ['Долька лимона'], s: [['Джин', 45], ['Лимонный сок', 30], ['Сахарный сироп', 10], ['Содовая', 'сплэш']], tip: 'Шейкуют всё, кроме содовой: её доливают в бокал. Подают без льда.' },
+  { id: 'bramble', n: 'Брамбл', grp: 1, g: ['rocks'], m: 'shake', gar: ['Долька лимона и ежевика'], s: [['Джин', 50], ['Лимонный сок', 25], ['Сахарный сироп', 12.5], ['Ежевичный ликёр', 15]], tip: 'Ежевичный ликёр не шейкуют: его льют последним по кругу поверх дроблёного льда.' },
+  { id: 'pina', n: 'Пина колада', grp: 1, g: ['hurricane'], m: 'blend', gar: ['Долька ананаса и вишня'], s: [['Белый ром', 50], ['Кокосовые сливки', 30], ['Ананасовый сок', 50]] },
+  { id: 'martini', n: 'Драй мартини', grp: 2, g: ['cocktail'], m: 'stir', gar: ['Лимонная цедра', 'Оливки'], s: [['Джин', 60], ['Сухой вермут', 10]], tip: 'Масла цедры выжимают над напитком. Оливки, если гость попросит.' },
+  { id: 'manhattan', n: 'Манхэттен', grp: 2, g: ['cocktail'], m: 'stir', gar: ['Коктейльная вишня'], s: [['Ржаной виски', 50], ['Красный вермут', 20], ['Ангостура', '1 дэш']] },
+  { id: 'oldfash', n: 'Олд фэшн', grp: 2, g: ['rocks'], m: 'muddle', gar: ['Долька апельсина и вишня'], s: [['Сахарный кубик', '1 шт'], ['Ангостура', 'несколько дэшей'], ['Вода', 'несколько капель'], ['Бурбон', 45]], tip: 'Кубик пропитывают биттером, добавляют воду и давят до растворения. Потом лёд и виски.' },
+  { id: 'mojito', n: 'Мохито', grp: 2, g: ['highball'], m: 'muddle', gar: ['Веточка мяты и долька лайма'], s: [['Мята', '6 веточек'], ['Тростниковый сахар', '2 ч. л.'], ['Сок лайма', 20], ['Содовая', 'сплэш'], ['Белый ром', 45], ['Содовая', 'долить']], tip: 'Мяту, сахар и лайм смешивают, добавляют немного содовой и лёд, потом ром и доливают содовую.' },
+  { id: 'caipi', n: 'Кайпиринья', grp: 2, g: ['rocks'], m: 'muddle', gar: ['Без украшения'], s: [['Лайм', '1 шт дольками'], ['Тростниковый сахар', '4 ч. л.'], ['Кашаса', 60]], tip: 'Лайм с сахаром давят прямо в бокале, потом колотый лёд и кашаса.' }
 ];
-var UNITS = ['м²', 'шт', 'м', 'м³', 'компл', 'точка', 'час', 'сеанс', 'см'];
-function matLabel() { var p = profById(S.prof); return (p && p.mat) || 'Материалы'; }
-var BASE_TERMS = { term: '5–7 рабочих дней', warranty: '12 месяцев', prepay: '30% на материалы' };
-function profById(id) { return PROFS.find(function (p) { return p.id === id; }); }
-function presetWorks(p) { return p.works.map(function (w) { return { id: uid(), name: w[0], unit: w[1], price: w[2] }; }); }
+const EXTRA_ING = ['Сливки', 'Абсент', 'Мараскино', 'Томатный сок', 'Тоник', 'Сок грейпфрута', 'Бенедиктин', 'Тёмный ром'];
+const GARNISH = ['Половинка дольки апельсина', 'Долька апельсина', 'Апельсиновая цедра', 'Лимонная цедра', 'Долька лимона', 'Долька лайма', 'Коктейльная вишня', 'Оливки', 'Веточка мяты и долька лайма', 'Долька ананаса и вишня', 'Долька апельсина и вишня', 'Полдольки апельсина и вишня', 'Долька лимона и ежевика', 'Соль на половине края', 'Без украшения', 'Полдольки апельсина и лимонная цедра', 'Кофейные зёрна', 'Сельдерей'];
+const ML = [5, 10, 12.5, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 100, 120, 150];
+const TXT = ['сплэш', 'долить', '1 дэш', 'несколько дэшей', 'несколько капель', '1 шт', '1 шот', '6 веточек', '2 ч. л.', '4 ч. л.', '2 барные ложки', '1 шт дольками'];
+const COLOR = { 'Джин': '#E8E2C8', 'Кампари': '#D3262B', 'Красный вермут': '#7E1B1B', 'Содовая': '#CFE6EF', 'Белый ром': '#EFEADB', 'Кола': '#3B1F12', 'Сок лайма': '#C9E28A', 'Водка': '#E3EAEE', 'Имбирное пиво': '#E6C27A', 'Текила': '#EAD9A0', 'Апельсиновый сок': '#F6A623', 'Гренадин': '#B0102A', 'Персиковый ликёр': '#F3B783', 'Клюквенный сок': '#C2203F', 'Просекко': '#F2E6A6', 'Апероль': '#F26B1D', 'Кофейный ликёр': '#3A2414', 'Куантро': '#F1ECDD', 'Лимонный сок': '#F2EA9A', 'Сахарный сироп': '#F5F1E6', 'Сухой вермут': '#E9E3B8', 'Ржаной виски': '#B5651D', 'Ангостура': '#6B1A12', 'Сахарный кубик': '#FFFFFF', 'Вода': '#DCEBF2', 'Бурбон': '#C0782F', 'Мята': '#5DAA4A', 'Тростниковый сахар': '#E3C79A', 'Лайм': '#8DC63F', 'Кашаса': '#EEE8D5', 'Сахарная пудра': '#FFFFFF', 'Трипл сек': '#F0E9D2', 'Цитрусовая водка': '#EEF0D8', 'Яичный белок': '#F7F5EE', 'Коньяк': '#A9561E', 'Эспрессо': '#2B1A10', 'Ежевичный ликёр': '#4A1033', 'Кокосовые сливки': '#F8F4EA', 'Ананасовый сок': '#F7D44C' };
+const VOL = { 'сплэш': 15, 'долить': 70, '1 дэш': 3, 'несколько дэшей': 4, 'несколько капель': 3, '1 шт': 6, '1 шот': 30, '6 веточек': 8, '2 ч. л.': 6, '4 ч. л.': 8, '2 барные ложки': 6, '1 шт дольками': 14 };
 
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-function fresh() {
-  return {
-    profile: { name: '', trade: '', phone: '', logo: '', term: '5–7 рабочих дней', warranty: '12 месяцев', prepay: '30% на материалы', note: '' },
-    works: [],
-    draft: { client: '', address: '', qty: {}, mat: '', editId: null },
-    history: [], counter: 0, sample: false, prof: null
-  };
-}
-var S;
-try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
-if (!S || !S.works) S = fresh();
-/* pick: экран выбора профессии; pending — выбранная профессия, ждущая решения про прайс */
-var pick = !S.prof, pending = null;
-function applyProf(p, replace) {
-  S.prof = p.id;
-  if (p.trade || replace) S.profile.trade = p.trade;
-  if (replace) { var tm = p.terms || BASE_TERMS; S.profile.term = tm.term; S.profile.warranty = tm.warranty; S.profile.prepay = tm.prepay; S.works = presetWorks(p); S.draft = { client: '', address: '', qty: {}, mat: '', editId: null }; S.sample = false; }
-  save();
-}
+const KEY = 'shaker-v1';
+let S = { adult: false, best: {}, xp: 0, streak: 0, lastDay: '', hints: true, up: {} };
+try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+// чаевые появились позже: старым игрокам начисляем за уже заработанные звёзды
+if (typeof S.tips !== 'number') S.tips = Object.keys(S.best).reduce((a, k) => a + (S.best[k] || 0) * 5, 0);
+if (!S.up) S.up = {};
+const UPGRADES = [
+  { id: 'shelf2', n: 'Вторая полка', d: 'Ещё 8 мест для коктейлей', price: 40 },
+  { id: 'lamps', n: 'Тёплые лампы', d: 'Подсветка над полками', price: 60 },
+  { id: 'wood', n: 'Стойка из ореха', d: 'Вместо простой серой', price: 80 },
+  { id: 'stools', n: 'Барные стулья', d: 'Чтобы гостям было где сесть', price: 100 },
+  { id: 'shelf3', n: 'Третья полка', d: 'Места хватит на все коктейли', price: 120, need: 'shelf2' },
+  { id: 'neon', n: 'Неоновая вывеска', d: 'Название бара над полками', price: 150 }
+];
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
-var tab = 'calc', view = null, confirmId = null, delConfirm = null;
-var $main = document.getElementById('main'), $bar = document.getElementById('bar');
+let V = { scr: 'home', cid: null };
+let G = null;
 
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-function num(v) { return parseFloat(String(v == null ? '' : v).replace(',', '.').replace(/\s/g, '')) || 0; }
-function money(n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽'; }
-function qfmt(n) { return (Math.round(n * 100) / 100).toLocaleString('ru-RU'); }
-function today() { return new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }); }
-function toast(t) {
-  var old = document.querySelector('.toast'); if (old) old.remove();
-  var d = document.createElement('div'); d.className = 'toast'; d.setAttribute('role', 'status'); d.textContent = t;
-  document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2600);
+const $app = document.getElementById('app');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const amt = a => typeof a === 'number' ? String(a).replace('.', ',') + ' мл' : a;
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const byId = id => D.find(c => c.id === id);
+const dayStr = d => d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+
+function unlocked(grp) {
+  if (grp === 0) return true;
+  const prev = D.filter(c => c.grp === grp - 1);
+  return prev.filter(c => (S.best[c.id] || 0) > 0).length >= Math.ceil(prev.length / 2);
 }
 
-function calcTotals() {
-  var works = 0;
-  S.works.forEach(function (w) { works += num(w.price) * num(S.draft.qty[w.id]); });
-  return { works: works, total: works + num(S.draft.mat) };
+const ICON = {
+  heart: '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="#FF8A73"><path d="M12 21s-7.5-4.6-9.6-9.2C1 8.4 3 5 6.4 5c2 0 3.6 1 4.6 2.6h2C14 6 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z"/></svg>',
+  flame: '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="#E8A33D"><path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.3 1.2-4 2.5-5.2.2 1.7 1 2.7 2 3.2C11 7.5 12 2 12 2z"/></svg>',
+  close: '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EDE3" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  back: '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EDE3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  lock: '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8AC9C" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  gear: '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4EDE3" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
+};
+function stars(n, size) {
+  size = size || 16; let h = '<span class="stars" aria-label="' + n + ' из 3">';
+  for (let i = 0; i < 3; i++) h += '<svg aria-hidden="true" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + (i < n ? '#E8A33D' : '#3A322B') + '"><path d="M12 2l3 6.6 7 .7-5.3 4.7 1.6 7L12 17.3 5.7 21l1.6-7L2 9.3l7-.7z"/></svg>';
+  return h + '</span>';
 }
 
-function editing() { return S.draft.editId && S.history.find(function (k) { return k.id === S.draft.editId; }); }
-
-/* ---------- Замер ---------- */
-function renderCalc() {
-  var h = '<div class="head"><p class="eyebrow">' + (editing() ? 'Правка КП № ' + editing().no : 'Новый замер') + '</p><h1>Расчёт работ</h1></div>';
-  if (S.sample) h += '<p class="hint">Здесь стоят примерные цены и метры, чтобы было видно, как всё работает. Свои цены впиши во вкладке «Прайс», а данные мастера — в «Профиле».</p>';
-  h += '<div class="panel pad">' +
-    '<label class="field" for="f-client">Клиент<input class="inp" id="f-client" data-d="client" value="' + esc(S.draft.client) + '" placeholder="Имя и что делаем: Ирина, ванная"></label>' +
-    '<label class="field" for="f-addr">Адрес объекта<input class="inp" id="f-addr" data-d="address" value="' + esc(S.draft.address) + '" placeholder="Необязательно"></label></div>';
-  h += '<div class="panel">';
-  S.works.forEach(function (w) {
-    var q = S.draft.qty[w.id] || '';
-    var s = num(w.price) * num(q);
-    h += '<div class="line' + (s > 0 ? ' on' : '') + '" data-row="' + w.id + '"><div class="grow"><span class="t">' + esc(w.name || 'Без названия') + '</span><span class="s" data-s="' + w.id + '">' + money(num(w.price)) + ' за ' + esc(w.unit) + (s > 0 ? ' · ' + money(s) : '') + '</span></div>' +
-      '<input class="inp num" style="width:72px" id="q-' + w.id + '" data-q="' + w.id + '" inputmode="decimal" placeholder="0" value="' + esc(q) + '" aria-label="' + esc(w.name) + ', количество"><span class="unit">' + esc(w.unit) + '</span></div>';
+// Бокалы: контур, область жидкости (top/bottom), ножка
+const SHAPES = {
+  rocks: { p: 'M22 48 L98 48 L94 126 Q93 132 86 132 L34 132 Q27 132 26 126 Z', t: 54, b: 130 },
+  highball: { p: 'M36 12 L84 12 L81 128 Q80 133 75 133 L45 133 Q40 133 39 128 Z', t: 20, b: 131 },
+  cocktail: { p: 'M14 24 L106 24 L60 78 Z', t: 30, b: 78, stem: 'M60 78 L60 124 M40 128 L80 128' },
+  flute: { p: 'M46 10 L74 10 L72 80 Q60 92 48 80 Z', t: 18, b: 88, stem: 'M60 88 L60 124 M44 128 L76 128' },
+  wine: { p: 'M28 20 L92 20 Q96 70 60 82 Q24 70 28 20 Z', t: 34, b: 82, stem: 'M60 82 L60 124 M42 128 L78 128' },
+  mug: { p: 'M26 40 L88 40 L86 130 L28 130 Z', t: 46, b: 130, stem: 'M88 56 Q110 56 108 82 Q106 106 87 106' },
+  hurricane: { p: 'M40 10 L80 10 Q76 40 86 62 Q98 90 76 110 L44 110 Q22 90 34 62 Q44 40 40 10 Z', t: 20, b: 110, stem: 'M60 110 L60 124 M44 128 L76 128' },
+  tin: { p: 'M30 28 L90 28 L84 132 Q83 134 80 134 L40 134 Q37 134 36 132 Z', t: 34, b: 132 },
+  mix: { p: 'M26 22 L94 22 L90 130 Q89 134 84 134 L36 134 Q31 134 30 130 Z', t: 28, b: 132 },
+  blender: { p: 'M28 12 L92 12 L82 104 L38 104 Z', t: 18, b: 104, stem: 'M34 108 L86 108 L90 132 L30 132 Z' }
+};
+// Точка на краю бокала, куда цепляется украшение
+const RIM = { rocks: [96, 48], highball: [82, 12], cocktail: [102, 26], flute: [73, 11], wine: [90, 22], mug: [86, 40], hurricane: [80, 11] };
+// Рисует бокал (в координатах 120×140). fill — доля наполнения, cid — id маски
+function glassInner(type, layers, total, fill, cid) {
+  const sh = SHAPES[type]; const H = (sh.b - sh.t) * 0.92 * fill; let y = sh.b, rects = '';
+  layers.forEach(l => {
+    const v = typeof l[1] === 'number' ? l[1] : (VOL[l[1]] || 5);
+    const h = Math.max(3, v / total * H);
+    y -= h;
+    rects += '<rect x="0" y="' + y.toFixed(1) + '" width="120" height="' + (h + 0.6).toFixed(1) + '" fill="' + (l[2] || COLOR[l[0]] || '#CCCCCC') + '"/>';
   });
-  h += '<div class="line"><label class="grow" for="f-mat"><span class="t">' + esc(matLabel()) + '</span><span class="s">Одной суммой, если нужно</span></label><input class="inp num" style="width:100px" id="f-mat" data-d="mat" inputmode="decimal" value="' + esc(S.draft.mat) + '"><span class="unit">₽</span></div>';
-  h += '</div>';
-  h += '<div class="btns"><button class="btn ghost" data-act="reset">Новый замер</button></div>';
-  $main.innerHTML = h;
-  $bar.hidden = false;
-  $bar.innerHTML = '<div class="tot"><small>Итого</small><b id="tot">' + money(calcTotals().total) + '</b></div><button class="btn primary" data-act="make">' + (editing() ? 'Обновить КП № ' + editing().no : 'Создать КП') + '</button>';
+  return '<defs><clipPath id="' + cid + '"><path d="' + sh.p + '"/></clipPath></defs>' +
+    '<path d="' + sh.p + '" fill="#2A241F"/><g clip-path="url(#' + cid + ')">' + rects + '</g>' +
+    '<path d="' + sh.p + '" fill="none" stroke="#E9DFD0" stroke-width="3" stroke-linejoin="round"/>' +
+    (sh.stem ? '<path d="' + sh.stem + '" fill="none" stroke="#E9DFD0" stroke-width="3" stroke-linecap="round"/>' : '');
 }
-function onCalcInput(e) {
-  var t = e.target;
-  if (t.dataset.d) { S.draft[t.dataset.d] = t.value; }
-  if (t.dataset.q) {
-    var id = t.dataset.q; S.draft.qty[id] = t.value;
-    var w = S.works.find(function (x) { return x.id === id; });
-    var s = num(w.price) * num(t.value);
-    var el = $main.querySelector('[data-s="' + id + '"]');
-    el.textContent = money(num(w.price)) + ' за ' + w.unit + (s > 0 ? ' · ' + money(s) : '');
-    el.parentNode.parentNode.classList.toggle('on', s > 0);
+function glassSvg(type, layers, total) {
+  return '<svg width="110" height="128" viewBox="0 0 120 140" aria-hidden="true">' + glassInner(type, layers, total, 1, 'c' + Math.random().toString(36).slice(2, 7)) + '</svg>';
+}
+function garnishColor(g) {
+  const t = g.toLowerCase();
+  const map = [['без', null], ['ананас', '#F7D44C'], ['мят', '#5DAA4A'], ['ежевик', '#3A1030'], ['вишн', '#C2203F'], ['апельсин', '#F28C28'], ['лимон', '#F2D43A'], ['лайм', '#8DC63F'], ['олив', '#7A8B2E'], ['соль', '#FFFFFF']];
+  for (const m of map) if (t.indexOf(m[0]) >= 0) return m[1];
+  return null;
+}
+// Коктейль на полке: 3★ идеальный, 2★ аккуратный без блеска, 1★ недолит, накренился и пролит, но узнаваем
+function shelfCocktail(c, st, x, base) {
+  const type = c.g[0]; const sc = 0.3; const cid = 'p' + c.id;
+  const fill = st >= 3 ? 1 : st === 2 ? 0.82 : 0.55;
+  let inner = glassInner(type, viewLayers(c), totalVol(c), fill, cid);
+  const gc = st >= 2 ? garnishColor(c.gar[0]) : null;
+  if (gc) { const r = RIM[type]; inner += '<circle cx="' + r[0] + '" cy="' + r[1] + '" r="13" fill="' + gc + '" stroke="#14110F" stroke-width="2"/>'; }
+  if (st >= 3) inner += '<path d="M24 8 l4 9 9 4 -9 4 -4 9 -4 -9 -9 -4 9 -4z" fill="#FFE7A8"/>';
+  const tilt = st === 1 ? ' rotate(-9 60 134)' : '';
+  let out = '<g data-act="open" data-id="' + c.id + '" role="button" aria-label="' + esc(c.n) + ', ' + st + ' из 3"><title>' + esc(c.n) + '</title>';
+  out += '<rect x="' + (x - 2) + '" y="' + (base - 46) + '" width="40" height="48" fill="transparent"/>';
+  if (st === 1) { const vl = viewLayers(c); const top = vl[vl.length - 1]; out += '<ellipse cx="' + (x + 22) + '" cy="' + (base + 1) + '" rx="11" ry="2.5" fill="' + (top[2] || COLOR[top[0]] || '#CCCCCC') + '" opacity=".7"/>'; }
+  out += '<g transform="translate(' + x + ' ' + (base - 42) + ') scale(' + sc + ')' + tilt + '">' + inner + '</g></g>';
+  return out;
+}
+function barScene() {
+  const learned = D.filter(c => (S.best[c.id] || 0) > 0);
+  const shelves = 1 + (S.up.shelf2 ? 1 : 0) + (S.up.shelf3 ? 1 : 0);
+  const bases = [118, 198, 278];
+  let s = '<svg class="scene" viewBox="0 0 360 440" role="img" aria-label="Мой бар: ' + learned.length + ' коктейлей на полках">';
+  s += '<defs><linearGradient id="lamp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFC56B" stop-opacity=".28"/><stop offset="1" stop-color="#FFC56B" stop-opacity="0"/></linearGradient>' +
+    '<filter id="glow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+  s += '<rect width="360" height="330" fill="' + (S.up.lamps ? '#2B211A' : '#1E1915') + '"/>';
+  for (let i = 0; i < 9; i++) s += '<rect x="' + (i * 40) + '" y="0" width="1" height="330" fill="#000" opacity=".18"/>';
+  if (S.up.lamps) [70, 180, 290].forEach(x => { s += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="22" stroke="#6B5A48" stroke-width="2"/><path d="M' + (x - 12) + ' 30 L' + (x + 12) + ' 30 L' + (x + 8) + ' 22 L' + (x - 8) + ' 22 Z" fill="#E8A33D"/><path d="M' + (x - 10) + ' 30 L' + (x + 10) + ' 30 L' + (x + 60) + ' 300 L' + (x - 60) + ' 300 Z" fill="url(#lamp)"/>'; });
+  if (S.up.neon) s += '<text x="180" y="60" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="30" letter-spacing="4" fill="#FF6FB5" stroke="#FFD1EA" stroke-width=".8" filter="url(#glow)">ШЕЙКЕР</text>';
+  for (let k = 0; k < 3; k++) {
+    const b = bases[k];
+    if (k < shelves) {
+      s += '<rect x="12" y="' + b + '" width="336" height="7" rx="2" fill="#7A5634"/><rect x="12" y="' + (b + 7) + '" width="336" height="3" fill="#000" opacity=".3"/>';
+      for (let i = 0; i < 8; i++) {
+        const c = learned[k * 8 + i]; const x = 22 + i * 40;
+        if (c) s += shelfCocktail(c, S.best[c.id], x, b);
+        else s += '<rect x="' + (x + 6) + '" y="' + (b - 30) + '" width="24" height="28" rx="4" fill="none" stroke="#3A322B" stroke-width="1.5" stroke-dasharray="3 3"/>';
+      }
+    } else {
+      s += '<rect x="12" y="' + b + '" width="336" height="7" rx="2" fill="none" stroke="#3A322B" stroke-width="1.5" stroke-dasharray="5 4"/>' +
+        '<text x="180" y="' + (b - 14) + '" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#7D7266">Полка не куплена</text>';
+    }
   }
-  var tot = document.getElementById('tot'); if (tot) tot.textContent = money(calcTotals().total);
-  save();
+  const top = S.up.wood ? '#8A5A33' : '#5E5A55', front = S.up.wood ? '#5C3A20' : '#3E3B38';
+  s += '<rect x="0" y="318" width="360" height="16" fill="' + top + '"/><rect x="0" y="334" width="360" height="106" fill="' + front + '"/>';
+  s += '<rect x="0" y="334" width="360" height="4" fill="#000" opacity=".25"/>';
+  if (S.up.wood) for (let i = 1; i < 6; i++) s += '<rect x="' + (i * 60) + '" y="344" width="2" height="96" fill="#000" opacity=".18"/>';
+  if (S.up.stools) [60, 180, 300].forEach(x => { s += '<rect x="' + (x - 3) + '" y="392" width="6" height="48" fill="#2A241F"/><ellipse cx="' + x + '" cy="390" rx="26" ry="8" fill="#C0392B"/><ellipse cx="' + x + '" cy="387" rx="26" ry="6" fill="#E04A3A"/>'; });
+  return s + '</svg>';
 }
-function makeKp() {
-  var lines = [];
-  S.works.forEach(function (w) {
-    var q = num(S.draft.qty[w.id]);
-    if (q > 0 && num(w.price) >= 0) lines.push({ name: w.name || 'Работа', unit: w.unit, qty: q, price: num(w.price), sum: q * num(w.price) });
-  });
-  if (!lines.length && num(S.draft.mat) <= 0) { toast('Впиши количество хотя бы у одной работы'); return; }
-  var t = calcTotals(), kp;
-  var old = S.draft.editId && S.history.find(function (k) { return k.id === S.draft.editId; });
-  if (old) kp = old; else { S.counter += 1; kp = { id: uid(), no: S.counter, date: today() }; S.history.unshift(kp); }
-  kp.client = S.draft.client; kp.address = S.draft.address; kp.lines = lines; kp.mat = num(S.draft.mat); kp.matLabel = matLabel(); kp.total = t.total;
-  kp.profile = JSON.parse(JSON.stringify(S.profile));
-  S.draft.editId = kp.id;
-  save();
-  view = kp.id; render();
+const totalVol = c => c.s.reduce((a, x) => a + (typeof x[1] === 'number' ? x[1] : (VOL[x[1]] || 5)), 0);
+
+// ---------- Игра ----------
+// Чем готовим: инструмент = метод. vessel — куда наливаем (null = сразу в бокал)
+const TOOLS = {
+  build: { n: 'Прямо в бокале', d: 'налить в бокал со льдом', v: null },
+  muddle: { n: 'Мадлер', d: 'подавить в бокале, потом лёд', v: null },
+  shake: { n: 'Шейкер', d: 'взболтать со льдом и процедить', v: 'tin' },
+  stir: { n: 'Смесительный стакан', d: 'перемешать ложкой со льдом', v: 'mix' },
+  blend: { n: 'Блендер', d: 'взбить со льдом', v: 'blender' }
+};
+// После скольких ингредиентов давим мадлером
+const MUD = { oldfash: 3, mojito: 3, caipi: 2 };
+// Как отмеряется количество
+const TAPS = { '1 дэш': [1, 1, 'дэш'], 'несколько дэшей': [2, 4, 'дэш'], 'несколько капель': [2, 5, 'капля'], '1 шт': [1, 1, 'шт'], '1 шот': [1, 1, 'шот'], '6 веточек': [6, 6, 'веточка'], '2 ч. л.': [2, 2, 'ч. л.'], '4 ч. л.': [4, 4, 'ч. л.'], '2 барные ложки': [2, 2, 'бар. ложка'], '1 шт дольками': [1, 1, 'лайм'] };
+function measure(a) {
+  if (typeof a === 'number') return { k: 'ml', t: a, tol: Math.max(3, Math.round(a * 0.1)) };
+  if (a === 'сплэш') return { k: 'ml', t: 15, tol: 7 };
+  if (a === 'долить') return { k: 'top', t: 70 };
+  const r = TAPS[a] || [1, 1, 'шт']; return { k: 'tap', min: r[0], max: r[1], unit: r[2] };
+}
+const MIXED = { shake: 1, stir: 1, blend: 1 };
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function mixColor(layers) {
+  let w = 0, r = 0, g = 0, b = 0;
+  layers.forEach(l => { const v = typeof l[1] === 'number' ? l[1] : (VOL[l[1]] || 5); const c = hex2rgb(l[2] || COLOR[l[0]] || '#CCCCCC'); w += v; r += c[0] * v; g += c[1] * v; b += c[2] * v; });
+  if (!w) return '#CCCCCC';
+  return '#' + [r, g, b].map(x => Math.round(x / w).toString(16).padStart(2, '0')).join('');
+}
+// Как коктейль выглядит в бокале: взболтанные и перемешанные — одним цветом
+function viewLayers(c) { return MIXED[c.m] ? [['mix', totalVol(c), mixColor(c.s)]] : c.s; }
+
+function startGame(id) {
+  const c = byId(id);
+  G = { c: c, step: 'glass', lives: 3, idx: 0, layers: [], glass: null, tool: null, sel: null, cur: 0, mudDone: false, msg: '', kind: '', opts: [] };
+  makeOpts(); V.scr = 'game'; render();
+}
+function makeOpts() {
+  const c = G.c;
+  if (G.step === 'glass') {
+    const others = shuffle(Object.keys(GLASS).filter(k => c.g.indexOf(k) < 0)).slice(0, 3);
+    G.opts = shuffle([c.g[0]].concat(others)).map(k => ({ v: k, label: GLASS[k] }));
+  } else if (G.step === 'tool') {
+    G.opts = Object.keys(TOOLS).map(k => ({ v: k, label: TOOLS[k].n, sub: TOOLS[k].d, wide: true }));
+  } else if (G.step === 'bottle') {
+    const rest = []; c.s.slice(G.idx).forEach(x => { if (rest.indexOf(x[0]) < 0) rest.push(x[0]); });
+    const inRecipe = c.s.map(x => x[0]);
+    const pool = shuffle(Object.keys(COLOR).concat(EXTRA_ING).filter(n => inRecipe.indexOf(n) < 0 && n !== 'Вода'));
+    const need = Math.max(3, 6 - rest.length);
+    G.opts = shuffle(rest.concat(pool.slice(0, need))).map(n => ({ v: n, label: n }));
+  } else if (G.step === 'garnish') {
+    const others = shuffle(GARNISH.filter(x => c.gar.indexOf(x) < 0)).slice(0, 3);
+    G.opts = shuffle([c.gar[0]].concat(others)).map(x => ({ v: x, label: x, wide: true }));
+  } else G.opts = [];
+}
+function wrong(text) {
+  G.lives--; G.msg = text; G.kind = 'bad';
+  if (G.lives <= 0) G.step = 'fail';
+  render(true);
+}
+function go(step, text) {
+  if (text !== undefined) { G.msg = text; G.kind = text ? 'ok' : ''; }
+  G.step = step;
+  if (step === 'done') { finish(); return; }
+  makeOpts(); render();
+}
+// Что дальше после очередного ингредиента
+function afterPour() {
+  const c = G.c;
+  if (MUD[c.id] === G.idx && !G.mudDone) return 'muddle';
+  if (G.idx < c.s.length) return 'bottle';
+  return MIXED[c.m] ? 'action' : 'garnish';
+}
+function pick(i) {
+  const o = G.opts[i]; if (!o) return; const c = G.c;
+  if (G.step === 'glass') {
+    if (c.g.indexOf(o.v) >= 0) { G.glass = o.v; go('tool', 'Верно! ' + GLASS[o.v] + '.'); }
+    else wrong('Не тот бокал. ' + c.n + ' подают: ' + c.g.map(k => GLASS[k].toLowerCase()).join(' или ') + '.');
+  } else if (G.step === 'tool') {
+    if (o.v === c.m) { G.tool = o.v; go('bottle', 'Верно! ' + TOOLS[o.v].n + '.'); }
+    else wrong('Не тот способ. ' + c.n + ': ' + TOOLS[c.m].n.toLowerCase() + ', ' + TOOLS[c.m].d + '.');
+  } else if (G.step === 'bottle') {
+    const need = c.s[G.idx];
+    if (o.v === need[0]) { G.sel = need; G.cur = 0; go('pour', ''); }
+    else if (c.s.some(x => x[0] === o.v)) wrong(o.v + ' в рецепте есть, но не сейчас. Сейчас по порядку: ' + need[0].toLowerCase() + '.');
+    else wrong('В рецепте ' + c.n + ' нет такого ингредиента: ' + o.v.toLowerCase() + '.');
+  } else if (G.step === 'garnish') {
+    if (c.gar.indexOf(o.v) >= 0) { G.garnish = o.v; go('done', 'Верно! ' + o.v + '.'); }
+    else wrong('Не то. Украшение: ' + c.gar.join(' или ').toLowerCase() + '.');
+  }
+}
+// Налив закончен: проверяем количество
+function judgePour() {
+  const need = G.sel; const m = measure(need[1]); const cur = Math.round(G.cur * 10) / 10;
+  const fmt = v => String(Math.round(v)).replace('.', ',') + ' мл';
+  if (m.k === 'ml') {
+    if (cur < m.t - m.tol) { G.msg = cur > 0 ? 'Пока ' + fmt(cur) + '. Долей ещё.' : 'Зажми кнопку и держи, пока льётся.'; G.kind = ''; setMsg(); return; }
+    if (cur > m.t + m.tol) { overPour('Перелил: ' + fmt(cur) + '. Нужно: ' + amt(need[1]) + '.'); return; }
+    acceptPour(m.t === need[1] ? Math.round(cur) : need[1]); go(afterPour(), 'Отлично! ' + need[0] + ': ' + fmt(cur) + '.');
+  } else if (m.k === 'top') {
+    if (cur < 40) { G.msg = 'Долей до верха.'; G.kind = ''; setMsg(); return; }
+    acceptPour(Math.round(cur)); go(afterPour(), 'Отлично! Долито до верха.');
+  } else {
+    if (cur < m.min) { G.msg = 'Пока ' + cur + '. Добавь ещё или нажми «Готово».'; G.kind = ''; setMsg(); return; }
+    if (cur > m.max) { overPour('Многовато: ' + cur + '. Нужно: ' + need[1] + '.'); return; }
+    acceptPour(need[1]); go(afterPour(), 'Отлично! ' + need[0] + ': ' + need[1] + '.');
+  }
+}
+function acceptPour(v) { G.layers.push([G.sel[0], v]); G.idx++; G.sel = null; G.cur = 0; }
+function finishAction() {
+  if (G.step === 'muddle') { G.mudDone = true; go(afterPour(), 'Отлично! Всё подавлено.'); return; }
+  const c = G.c; const names = { shake: 'Взболтал. Процеживаем в бокал.', stir: 'Перемешал. Процеживаем в бокал.', blend: 'Взбил. Переливаем в бокал.' };
+  G.layers = [['mix', G.layers.reduce((a, l) => a + (typeof l[1] === 'number' ? l[1] : (VOL[l[1]] || 5)), 0), mixColor(G.layers)]];
+  G.poured = true; go('garnish', names[c.m]);
+}
+function setMsg() { const m = document.getElementById('msg'); if (m) { m.className = 'msg ' + G.kind; m.textContent = G.msg; } }
+// Перелив / лишние тапы: засчитываем правильное количество, но снимаем жизнь
+function overPour(text) { const need = G.sel; acceptPour(need[1]); G.step = afterPour(); makeOpts(); wrong(text); }
+
+function finish() {
+  const c = G.c; const prev = S.best[c.id] || 0;
+  G.newBest = G.lives > prev; G.firstTime = prev === 0;
+  S.best[c.id] = Math.max(prev, G.lives);
+  G.xp = 10 + (G.lives === 3 ? 5 : 0); S.xp += G.xp;
+  G.tips = G.lives * 5; S.tips += G.tips;
+  const today = dayStr(new Date()); const y = new Date(); y.setDate(y.getDate() - 1);
+  if (S.lastDay !== today) { S.streak = S.lastDay === dayStr(y) ? S.streak + 1 : 1; S.lastDay = today; }
+  save(); render();
+}
+function nextCocktail() {
+  const c = G.c; const i = D.indexOf(c);
+  for (let k = 1; k <= D.length; k++) { const n = D[(i + k) % D.length]; if (unlocked(n.grp) && (S.best[n.id] || 0) < 3) return n.id; }
+  return D[(i + 1) % D.length].id;
+}
+function weakOne() {
+  const list = D.filter(c => unlocked(c.grp) && (S.best[c.id] || 0) < 3);
+  const from = list.length ? list : D.filter(c => unlocked(c.grp));
+  return from[Math.floor(Math.random() * from.length)].id;
 }
 
-/* ---------- КП ---------- */
-function docHtml(kp) {
-  var p = kp.profile || S.profile;
-  var h = '<div class="doc"><div class="top"><div class="who"><b>' + esc(p.name || '[Имя мастера — заполни в Профиле]') + '</b><span>' + esc(p.trade) + '</span><span>' + esc(p.phone || '[Телефон]') + '</span></div>' +
-    (p.logo ? '<img class="lg" alt="" src="' + p.logo + '">' : '') + '</div>';
-  h += '<div class="title"><b>Коммерческое предложение № ' + kp.no + '</b><span>' + esc(kp.client || 'Клиент') + (kp.address ? ' · ' + esc(kp.address) : '') + ' · ' + esc(kp.date) + '</span></div>';
-  h += '<table><thead><tr><th>Работа</th><th class="r">Кол-во</th><th class="r">Сумма</th></tr></thead><tbody>';
-  kp.lines.forEach(function (l) {
-    h += '<tr><td>' + esc(l.name) + '<br><span style="color:var(--p-muted);font-size:12px">' + money(l.price) + ' за ' + esc(l.unit) + '</span></td><td class="q r">' + qfmt(l.qty) + ' ' + esc(l.unit) + '</td><td class="r">' + money(l.sum) + '</td></tr>';
+// ---------- Экраны ----------
+const COIN = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#E8A33D"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#14110F" stroke-width="2"/></svg>';
+function header(left) {
+  return '<div class="row">' + left + '<div class="grow"></div><span class="stat">' + ICON.flame + S.streak + '</span><span class="stat" style="color:var(--acc)">' + S.xp + ' XP</span></div>';
+}
+function tabs() {
+  const t = (id, label, icon) => '<button class="' + (V.scr === id ? 'on' : '') + '" data-act="tab" data-to="' + id + '"' + (V.scr === id ? ' aria-current="page"' : '') + '>' + icon + label + '</button>';
+  return '<nav class="tabs">' +
+    t('home', 'Коктейли', '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16l-8 9z"/><path d="M12 13v7M8 20h8"/></svg>') +
+    t('bar', 'Мой бар', '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 9h18M3 15h18M3 21h18M6 9V5M10 9V3M14 9V6M18 9V4"/></svg>') + '</nav>';
+}
+function renderBar() {
+  const learned = D.filter(c => (S.best[c.id] || 0) > 0).length;
+  const perfect = D.filter(c => S.best[c.id] === 3).length;
+  let h = '<div class="row"><div class="grow"><p class="eyebrow">На полках: ' + learned + ' · идеальных: ' + perfect + '</p><h1>Мой бар</h1></div><span class="stat coin" style="color:var(--acc)">' + COIN + S.tips + '</span></div>';
+  h += barScene();
+  h += '<p class="muted" style="font-size:14px">Три звезды: идеальный коктейль с украшением. Две: аккуратный. Одна: недолит и пролит. Нажми на коктейль, чтобы пересобрать его лучше.</p>';
+  if (!learned) h += '<div class="card"><p>Полки пока пустые. Собери первый коктейль, и он встанет сюда.</p><button class="btn" style="margin-top:12px" data-act="tab" data-to="home">К коктейлям</button></div>';
+  h += '<p class="eyebrow" style="margin-top:4px">Прокачка бара · чаевые за коктейли</p>';
+  UPGRADES.forEach(u => {
+    const own = !!S.up[u.id]; const locked = u.need && !S.up[u.need]; const can = S.tips >= u.price;
+    h += '<div class="up"><div class="grow"><p style="font-weight:800">' + esc(u.n) + '</p><p class="muted" style="font-size:14px">' + esc(locked ? 'Сначала купи: ' + UPGRADES.find(x => x.id === u.need).n.toLowerCase() : u.d) + '</p></div>' +
+      (own ? '<span class="own">Есть</span>' : '<button class="btn' + (can && !locked ? '' : ' sec') + '" data-act="buy" data-id="' + u.id + '"' + (can && !locked ? '' : ' disabled') + ' aria-label="Купить за ' + u.price + '"><span class="coin">' + COIN + u.price + '</span></button>') + '</div>';
   });
-  if (kp.mat > 0) h += '<tr><td>' + esc(kp.matLabel || 'Материалы') + '</td><td class="q r"></td><td class="r">' + money(kp.mat) + '</td></tr>';
-  h += '</tbody></table><div class="total"><b>Итого</b><strong>' + money(kp.total) + '</strong></div>';
-  var terms = [];
-  if (p.term) terms.push('Срок: ' + esc(p.term));
-  if (p.warranty) terms.push('Гарантия на работы: ' + esc(p.warranty));
-  if (p.prepay) terms.push('Предоплата: ' + esc(p.prepay));
-  if (terms.length) h += '<div class="terms">' + terms.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div>';
-  if (p.note) h += '<div class="note">' + esc(p.note) + '</div>';
+  h += '<p class="foot">Чаевые: 5 за каждую звезду в собранном коктейле</p>';
+  return h;
+}
+function renderGate() {
+  return '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px">' +
+    '<p class="eyebrow">Тренажёр бармена</p><h1>Шейкер</h1>' +
+    '<p class="muted">Учит рецептуры классических коктейлей: посуда, порядок и дозировки, метод и украшение. Рецепты по спецификациям IBA.</p>' +
+    '<div class="card"><h2>Только для взрослых</h2><p class="muted" style="margin-top:6px">В приложении есть рецепты алкогольных напитков. Оно предназначено для людей старше 18 лет. Чрезмерное употребление алкоголя вредит здоровью.</p></div>' +
+    '<button class="btn" data-act="adult">Мне есть 18 лет</button></div>';
+}
+function renderHome() {
+  let h = header('<h1>Шейкер</h1><button class="icon" data-act="settings" aria-label="Настройки">' + ICON.gear + '</button>');
+  const done = D.filter(c => (S.best[c.id] || 0) > 0).length;
+  h += '<div class="card row"><div class="grow"><p class="muted" style="font-size:14px">Освоено коктейлей</p><p style="font-size:22px;font-weight:800">' + done + ' из ' + D.length + '</p></div><button class="btn" style="width:auto" data-act="weak">Тренировка</button></div>';
+  GROUPS.forEach((g, gi) => {
+    const open = unlocked(gi);
+    h += '<div style="display:flex;flex-direction:column;gap:8px"><p class="eyebrow">' + (gi + 1) + '. ' + esc(g) + '</p>';
+    if (!open) h += '<p class="muted" style="font-size:14px">Откроется, когда пройдёшь половину коктейлей из блока ' + gi + '.</p>';
+    D.filter(c => c.grp === gi).forEach(c => {
+      h += '<button class="tile" data-act="open" data-id="' + c.id + '"' + (open ? '' : ' disabled') + '><span class="grow nm">' + esc(c.n) + '</span>' + (open ? stars(S.best[c.id] || 0) : ICON.lock) + '</button>';
+    });
+    h += '</div>';
+  });
+  h += '<p class="foot">Рецепты по спецификациям IBA · только 18+</p>';
+  return h;
+}
+function recipeCard(c) {
+  let h = '<div class="card" style="display:flex;flex-direction:column;gap:12px"><div class="stage">' + glassSvg(c.g[0], viewLayers(c), totalVol(c)) +
+    '<div><p class="muted" style="font-size:14px">Посуда</p><p style="font-weight:800">' + c.g.map(k => GLASS[k]).join(' или ') + '</p>' +
+    '<p class="muted" style="font-size:14px;margin-top:8px">Метод</p><p style="font-weight:800">' + METHOD[c.m][0] + ' · ' + TOOLS[c.m].n.toLowerCase() + '</p><p class="muted" style="font-size:14px">' + METHOD[c.m][1] + '</p></div></div>';
+  h += '<div><p class="muted" style="font-size:14px;margin-bottom:6px">По порядку</p><ol class="steps">' + c.s.map(x => '<li><b>' + esc(x[0]) + '</b> — ' + esc(amt(x[1])) + '</li>').join('') + '</ol></div>';
+  h += '<div><p class="muted" style="font-size:14px">Украшение</p><p style="font-weight:700">' + esc(c.gar.join(' или ')) + '</p></div>';
+  if (c.tip) h += '<p class="muted" style="font-size:15px">' + esc(c.tip) + '</p>';
   return h + '</div>';
 }
-function renderKp(kp) {
-  var h = '<div class="row-head"><div class="head"><p class="eyebrow">КП № ' + kp.no + ' · ' + esc(kp.date) + '</p><h1>' + esc(kp.client || 'Клиент') + '</h1></div></div>';
-  h += '<div class="paper-wrap">' + docHtml(kp) + '</div>';
-  h += '<div class="btns"><button class="btn ghost" data-act="edit" data-id="' + kp.id + '">Изменить</button><button class="btn ghost" data-act="dup" data-id="' + kp.id + '">Копия как новое</button></div>';
-  h += delConfirm === kp.id
-    ? '<div class="panel pad"><h2>Удалить КП № ' + kp.no + '?</h2><p class="hint">Его нельзя будет вернуть. Номера других КП не изменятся.</p><div class="btns"><button class="btn danger" data-act="delkp" data-id="' + kp.id + '">Удалить</button><button class="btn ghost" data-act="delno">Отмена</button></div></div>'
-    : '<button class="btn danger block" data-act="delask" data-id="' + kp.id + '">Удалить КП</button>';
-  $main.innerHTML = h;
-  $bar.hidden = false;
-  $bar.innerHTML = '<button class="btn ghost sm" data-act="back" aria-label="Назад">←</button><button class="btn primary" style="flex:1" data-act="pdf" data-id="' + kp.id + '">Отправить PDF</button>';
+function renderStudy() {
+  const c = byId(V.cid);
+  return '<div class="row"><button class="icon" data-act="tab" data-to="' + (V.back || 'home') + '" aria-label="Назад">' + ICON.back + '</button><div class="grow"><p class="eyebrow">Рецепт</p><h1>' + esc(c.n) + '</h1></div>' + stars(S.best[c.id] || 0, 20) + '</div>' +
+    recipeCard(c) + '<button class="btn" data-act="play" data-id="' + c.id + '">Собрать коктейль</button>';
 }
+const BOTTLE_FALLBACK = ['#7FA6C9', '#C98F5A', '#9BB86A', '#B07AB8', '#D9C27A', '#6FA89A'];
+function bottleColor(n) { if (COLOR[n]) return COLOR[n]; let h = 0; for (const ch of n) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return BOTTLE_FALLBACK[h % BOTTLE_FALLBACK.length]; }
+function bottleSvg(n, w) {
+  const c = bottleColor(n);
+  return '<svg aria-hidden="true" width="' + (w || 34) + '" height="' + Math.round((w || 34) * 2) + '" viewBox="0 0 40 80"><rect x="15" y="2" width="10" height="6" rx="2" fill="#6B5A48"/><rect x="16" y="7" width="8" height="13" fill="#E9DFD0" opacity=".85"/>' +
+    '<rect x="7" y="19" width="26" height="58" rx="7" fill="' + c + '" stroke="#E9DFD0" stroke-width="2"/><rect x="11" y="40" width="18" height="18" rx="3" fill="#F4EDE3" opacity=".9"/><rect x="14" y="45" width="12" height="2.5" fill="#14110F" opacity=".5"/><rect x="14" y="50" width="8" height="2.5" fill="#14110F" opacity=".5"/></svg>';
+}
+function vesselType() { return (G.tool && TOOLS[G.tool].v && !G.poured) ? TOOLS[G.tool].v : G.glass; }
+function vesselInner(extra) {
+  const c = G.c; let layers = G.layers.slice();
+  if (G.sel && extra > 0) layers.push([G.sel[0], extra]);
+  return glassInner(vesselType(), layers, totalVol(c), 1, 'vc');
+}
+function pourExtra() { const m = measure(G.sel[1]); return m.k === 'tap' ? G.cur * 3 : G.cur; }
+function countText() {
+  const m = measure(G.sel[1]);
+  if (m.k === 'tap') return '× ' + G.cur + ' · ' + m.unit;
+  return String(Math.round(G.cur)) + ' мл';
+}
+function renderGame() {
+  const c = G.c; const st = G.step;
+  const total = 3 + c.s.length + (MIXED[c.m] ? 1 : 0) + (MUD[c.id] ? 1 : 0);
+  let d = (G.glass ? 1 : 0) + (G.tool ? 1 : 0) + G.idx + (G.mudDone ? 1 : 0) + (G.poured ? 1 : 0);
+  const prog = Math.min(100, d / total * 100);
+  let h = '<div class="row"><button class="icon" data-act="quit" aria-label="Выйти">' + ICON.close + '</button><div class="bar"><i style="width:' + prog.toFixed(0) + '%"></i></div><span class="stat" style="color:var(--heart)">' + ICON.heart + G.lives + '</span></div>';
+  const sel = G.sel ? G.sel[0].toLowerCase() : '';
+  const m = G.sel ? measure(G.sel[1]) : null;
+  const q = {
+    glass: 'Какой бокал подаём?', tool: 'Чем готовим?',
+    bottle: G.idx === 0 ? 'Какую бутылку берём первой?' : 'Какая бутылка следующая?',
+    pour: m && m.k === 'top' ? 'Долей: ' + sel : m && m.k === 'tap' ? 'Добавь: ' + sel : 'Налей: ' + sel,
+    muddle: 'Подави мадлером', action: { shake: 'Взболтай!', stir: 'Перемешай ложкой', blend: 'Взбей в блендере' }[c.m], garnish: 'Чем украшаем?'
+  }[st];
+  h += '<div><p class="eyebrow">Собери · ' + esc(c.n) + '</p><h1>' + esc(q) + '</h1></div>';
 
-/* ---------- Мои КП ---------- */
-function renderHistory() {
-  var h = '<div class="head"><p class="eyebrow">Сохраняются на этом телефоне</p><h1>Мои КП</h1></div>';
-  if (!S.history.length) {
-    h += '<div class="panel"><div class="empty"><h2>Пока пусто</h2><p class="hint">Сделай замер и нажми «Создать КП» — предложение появится здесь.</p><button class="btn soft sm" data-goto="calc">Перейти к замеру</button></div></div>';
-  } else {
-    h += '<div class="panel">';
-    S.history.forEach(function (k) {
-      h += '<button class="hist" data-open="' + k.id + '"><span class="no">№ ' + k.no + '</span><span class="grow" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="t" style="font-weight:700">' + esc(k.client || 'Клиент') + '</span><span class="s" style="font-size:13px;color:var(--muted);font-weight:600">' + esc(k.date) + '</span></span><span class="sum">' + money(k.total) + '</span></button>';
-    });
-    h += '</div>';
+  if (st === 'glass') {
+    h += '<div class="grid">' + G.opts.map((o, i) => '<button class="opt glassopt" data-act="pick" data-i="' + i + '"><svg aria-hidden="true" width="44" height="52" viewBox="0 0 120 140">' + glassInner(o.v, [], 1, 1, 'g' + i) + '</svg><span>' + esc(o.label) + '</span></button>').join('') + '</div>';
+  } else if (st === 'tool' || st === 'garnish') {
+    h += '<div class="card stage"><svg aria-hidden="true" width="110" height="128" viewBox="0 0 120 140" id="vsl">' + glassInner(vesselType(), G.layers, totalVol(c), 1, 'vc') + '</svg><div><p class="muted" style="font-size:14px">' + (st === 'tool' ? 'Бокал' : 'Готово к подаче') + '</p><p style="font-weight:800">' + GLASS[G.glass] + '</p></div></div>';
+    h += '<div class="grid">' + G.opts.map((o, i) => '<button class="opt wide" data-act="pick" data-i="' + i + '">' + esc(o.label) + (o.sub ? '<span class="sub">' + esc(o.sub) + '</span>' : '') + '</button>').join('') + '</div>';
+  } else if (st === 'bottle') {
+    h += '<div class="card stage"><svg aria-hidden="true" width="110" height="128" viewBox="0 0 120 140">' + vesselInner(0) + '</svg><div><p class="muted" style="font-size:14px">Наливаем в</p><p style="font-weight:800">' + (TOOLS[G.tool].v ? TOOLS[G.tool].n : GLASS[G.glass]) + '</p><p class="muted" style="font-size:14px">' + (G.layers.length ? G.layers.map(x => esc(x[0])).join(' · ') : 'пока пусто') + '</p></div></div>';
+    h += '<div class="bottles">' + G.opts.map((o, i) => '<button class="bt" data-act="pick" data-i="' + i + '">' + bottleSvg(o.v) + '<span>' + esc(o.label) + '</span></button>').join('') + '</div>';
+  } else if (st === 'pour') {
+    h += '<div class="card pourstage"><div class="btlwrap" id="btl">' + bottleSvg(G.sel[0], 30) + '</div><i class="stream" style="background:' + bottleColor(G.sel[0]) + '"></i>' +
+      '<svg aria-hidden="true" width="150" height="175" viewBox="0 0 120 140" id="vsl">' + vesselInner(pourExtra()) + '</svg><p class="cnt" id="cnt" aria-live="polite">' + countText() + '</p></div>';
+    if (m.k === 'tap') h += '<div class="grid"><button class="hold" data-act="tapadd">+ ' + esc(m.unit) + '</button><button class="hold sec" data-act="tapdone">Готово</button></div>';
+    else h += '<button class="hold" id="pourbtn">Держи, чтобы налить</button>';
+  } else if (st === 'muddle') {
+    h += '<button class="gest" data-act="mud" id="gest"><svg aria-hidden="true" width="120" height="140" viewBox="0 0 120 140">' + glassInner(G.glass, G.layers, totalVol(c), 1, 'vm') + '<g id="mdl"><rect x="54" y="0" width="12" height="70" rx="5" fill="#B5844F"/><rect x="50" y="64" width="20" height="14" rx="4" fill="#8A5A33"/></g></svg>' +
+      '<span class="gtxt">Стучи по экрану: дави <b id="cntm">' + G.cur + '</b> из 6</span></button>';
+  } else if (st === 'action') {
+    if (c.m === 'blend') h += '<div class="card pourstage"><svg aria-hidden="true" width="150" height="175" viewBox="0 0 120 140" id="vsl">' + vesselInner(0) + '</svg></div><button class="hold" id="blendbtn">Держи, чтобы взбить</button>';
+    else if (c.m === 'shake') h += '<div class="gest" id="gest"><svg aria-hidden="true" id="shk" width="110" height="150" viewBox="0 0 120 160"><path d="M44 4 L76 4 L82 30 L38 30 Z" fill="#D8D2C8"/><rect x="32" y="30" width="56" height="12" rx="3" fill="#E9E3D9"/><path d="M34 42 L86 42 L80 156 L40 156 Z" fill="#C8C2B8" stroke="#E9DFD0" stroke-width="3"/></svg><span class="gtxt">Води пальцем вверх-вниз или потряси телефон</span></div>';
+    else h += '<div class="gest" id="gest"><svg aria-hidden="true" width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="#2A241F" stroke="#E9DFD0" stroke-width="4"/><circle cx="100" cy="100" r="78" fill="' + mixColor(G.layers) + '" opacity=".9"/><circle id="spn" cx="100" cy="40" r="11" fill="#E9DFD0"/></svg><span class="gtxt">Води пальцем по кругу</span></div>';
+    h += '<div class="bar" style="flex:none"><i id="gp" style="width:0%"></i></div>';
   }
-  $main.innerHTML = h; $bar.hidden = true;
+  const def = { glass: S.hints ? 'Не помнишь? Ошибка покажет правильный ответ.' : 'Выбери бокал.', tool: 'Выбери способ приготовления.', bottle: 'Нажми на нужную бутылку.', pour: m && m.k === 'tap' ? 'Нажимай столько раз, сколько нужно, потом «Готово».' : 'Зажми кнопку и отпусти на нужном объёме.', muddle: 'Подави, чтобы выделился сок и растворился сахар.', action: c.m === 'blend' ? 'Держи кнопку, пока не взобьётся.' : 'Работай, пока полоса не заполнится.', garnish: 'Выбери украшение.' };
+  h += '<div class="msg ' + G.kind + '" id="msg" role="status">' + esc(G.msg || def[st] || '') + '</div>';
+  return h;
 }
-
-/* ---------- Прайс ---------- */
-function renderPrice() {
-  var h = '<div class="head"><p class="eyebrow">Заполняется один раз</p><h1>Мой прайс</h1></div><div class="panel">';
-  S.works.forEach(function (w) {
-    var c = confirmId === w.id;
-    h += '<div class="pline"><textarea class="inp pname" rows="1" id="n-' + w.id + '" data-pn="' + w.id + '" placeholder="Название работы" aria-label="Название работы">' + esc(w.name) + '</textarea>' +
-      '<div class="pctl"><input class="inp num" style="flex:1" id="p-' + w.id + '" data-pp="' + w.id + '" inputmode="decimal" value="' + esc(w.price) + '" placeholder="Цена" aria-label="Цена">' +
-      '<button class="unitbtn" data-unit="' + w.id + '" aria-label="Единица: ' + esc(w.unit) + ', сменить">₽/' + esc(w.unit) + '</button>' +
-      '<button class="iconbtn' + (c ? ' confirm' : '') + '" data-del="' + w.id + '" aria-label="Удалить работу">' + (c ? 'Удалить?' : '×') + '</button></div></div>';
-  });
-  h += '</div><button class="btn dashed" data-act="addwork">+ Добавить работу</button>' +
-    '<p class="hint">Кнопка «₽/м²» переключает единицу: м², шт, м, м³, компл. Чтобы удалить строку, нажми × два раза.</p>';
-  $main.innerHTML = h; $bar.hidden = true;
-  $main.querySelectorAll('textarea.pname').forEach(grow);
-}
-function grow(t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 4 + 'px'; }
-
-/* ---------- Профиль ---------- */
-function renderProfile() {
-  var p = S.profile;
-  function f(id, key, label, ph) { return '<label class="field" for="' + id + '">' + label + '<input class="inp" id="' + id + '" data-pf="' + key + '" value="' + esc(p[key]) + '" placeholder="' + esc(ph) + '"></label>'; }
-  var cp = profById(S.prof);
-  var h = '<div class="head"><p class="eyebrow">Это увидит клиент в КП</p><h1>Профиль</h1></div>';
-  h += '<div class="panel pad"><div class="profrow"><div style="min-width:0"><p class="eyebrow">Профессия</p><h2>' + esc(cp ? cp.name : 'Не выбрана') + '</h2></div><button class="btn soft sm" data-act="changeprof">Сменить</button></div></div>';
-  h += '<div class="panel pad"><div class="logo-row"><div class="logo-box">' + (p.logo ? '<img alt="Логотип" src="' + p.logo + '">' : 'лого') + '</div>' +
-    '<div class="btns" style="flex:1"><label class="btn ghost sm file-label">Загрузить логотип<input type="file" id="f-logo" accept="image/*"></label>' +
-    (p.logo ? '<button class="btn ghost sm" data-act="nologo">Убрать</button>' : '') + '</div></div>' +
-    f('pf-name', 'name', 'Имя или название', 'Иван Петров') + f('pf-trade', 'trade', 'Чем занимаешься', 'Укладка плитки') + f('pf-phone', 'phone', 'Телефон', '+7 900 000-00-00') + '</div>';
-  h += '<div class="panel pad"><h2>Условия по умолчанию</h2>' + f('pf-term', 'term', 'Срок', '5–7 рабочих дней') + f('pf-war', 'warranty', 'Гарантия', '12 месяцев') + f('pf-pre', 'prepay', 'Предоплата', '30% на материалы') +
-    '<label class="field" for="pf-note">Примечание внизу КП<textarea class="inp" id="pf-note" data-pf="note" placeholder="Например: цена действительна 14 дней">' + esc(p.note) + '</textarea></label></div>';
-  h += '<div class="panel pad"><h2>Резервная копия</h2><p class="hint">Все данные хранятся только на этом телефоне. Сохраняй копию, чтобы ничего не потерять при смене телефона.</p>' +
-    '<div class="btns"><button class="btn ghost sm" data-act="backup">Сохранить копию</button><label class="btn ghost sm file-label">Восстановить<input type="file" id="f-restore" accept=".json,application/json"></label></div></div>';
-  $main.innerHTML = h; $bar.hidden = true;
-}
-
-/* ---------- PDF ---------- */
-function kpFileName(kp) { return ('КП_' + kp.no + '_' + (kp.client || 'клиент')).replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_').slice(0, 60) + '.pdf'; }
-function deliver(blob, name) {
-  var file;
-  try { file = new File([blob], name, { type: blob.type }); } catch (e) {}
-  if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-    return navigator.share({ files: [file], title: name }).catch(function (err) { if (err && err.name !== 'AbortError') download(blob, name); });
-  }
-  download(blob, name);
-}
-function download(blob, name) {
-  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
-  document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
-  toast('Файл сохранён в «Загрузки»');
-}
-function loadImg(src) {
-  return new Promise(function (ok) { if (!src) return ok(null); var im = new Image(); im.onload = function () { ok(im); }; im.onerror = function () { ok(null); }; im.src = src; });
-}
-/* Рисует КП на страницах A4 (холсты) — сам, без библиотек */
-function drawKp(kp, logo) {
-  var PW = 595.28, PH = 841.89, K = 2.5, M = 48, BOTTOM = PH - 48;
-  var FONT = 'system-ui, -apple-system, Roboto, "Segoe UI", Arial, sans-serif';
-  var INK = '#15181C', MUTED = '#555D66', LINE = '#DADDE1', TINT = '#F3F5F7';
-  var pages = [], ctx, y;
-  function newPage() {
-    var c = document.createElement('canvas'); c.width = Math.round(PW * K); c.height = Math.round(PH * K);
-    ctx = c.getContext('2d'); ctx.scale(K, K); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, PW, PH);
-    ctx.textBaseline = 'alphabetic'; pages.push(c); y = M;
-  }
-  function font(size, w) { ctx.font = (w || 500) + ' ' + size + 'px ' + FONT; }
-  function txt(s, x, yy, size, w, color, align) { font(size, w); ctx.fillStyle = color || INK; ctx.textAlign = align || 'left'; ctx.fillText(s, x, yy); }
-  function wrap(s, maxW, size, w) {
-    font(size, w); var out = [];
-    String(s).split('\n').forEach(function (para) {
-      var words = para.split(/\s+/).filter(Boolean), line = '';
-      if (!words.length) { out.push(''); return; }
-      words.forEach(function (word) {
-        var test = line ? line + ' ' + word : word;
-        if (ctx.measureText(test).width <= maxW) { line = test; return; }
-        if (line) out.push(line);
-        while (ctx.measureText(word).width > maxW && word.length > 1) {
-          var i = word.length; while (i > 1 && ctx.measureText(word.slice(0, i)).width > maxW) i--;
-          out.push(word.slice(0, i)); word = word.slice(i);
-        }
-        line = word;
+// Жесты: налив удержанием, шейк, стир, бленд
+function bindGame() {
+  if (V.scr !== 'game' || !G) return;
+  const offs = [];
+  const on = (el, ev, fn, opt) => { if (!el) return; el.addEventListener(ev, fn, opt); offs.push(() => el.removeEventListener(ev, fn, opt)); };
+  G._off = () => { offs.forEach(f => f()); offs.length = 0; if (G._raf) cancelAnimationFrame(G._raf); G._off = null; };
+  const $ = id => document.getElementById(id);
+  const st = G.step; const c = G.c;
+  const buzz = ms => { if (navigator.vibrate) try { navigator.vibrate(ms); } catch (e) {} };
+  if (st === 'pour') {
+    const m = measure(G.sel[1]); const btn = $('pourbtn'); if (!btn) return;
+    let pouring = false, last = 0; const speed = m.k === 'top' ? 30 : 20;
+    const upd = () => { $('cnt').textContent = countText(); $('vsl').innerHTML = vesselInner(pourExtra()); };
+    const tick = t => {
+      if (!pouring) return;
+      G.cur += speed * Math.min(0.05, (t - last) / 1000); last = t;
+      if (m.k === 'top' && G.cur >= 95) { G.cur = 95; stop(); return; }
+      upd(); G._raf = requestAnimationFrame(tick);
+    };
+    const start = e => { e.preventDefault(); if (pouring) return; pouring = true; try { btn.setPointerCapture(e.pointerId); } catch (x) {} last = performance.now(); $('btl').classList.add('on'); btn.classList.add('on'); G._raf = requestAnimationFrame(tick); };
+    const stop = () => { if (!pouring) return; pouring = false; cancelAnimationFrame(G._raf); const b = $('btl'); if (b) b.classList.remove('on'); btn.classList.remove('on'); upd(); judgePour(); };
+    on(btn, 'pointerdown', start); on(btn, 'pointerup', stop); on(btn, 'pointercancel', stop); on(btn, 'lostpointercapture', stop);
+    on(btn, 'contextmenu', e => e.preventDefault());
+  } else if (st === 'action') {
+    let done = false; const need = c.m === 'stir' ? Math.PI * 6 : c.m === 'shake' ? 12 : 2500; let val = 0;
+    const prog = () => { $('gp').style.width = Math.min(100, val / need * 100).toFixed(0) + '%'; if (val >= need && !done) { done = true; buzz(80); setTimeout(finishAction, 250); } };
+    if (c.m === 'shake') {
+      const area = $('gest'), shk = $('shk'); let down = false, y0 = 0, ext = 0, dir = 0, lastShake = 0;
+      on(area, 'pointerdown', e => { down = true; y0 = ext = e.clientY; dir = 0; try { area.setPointerCapture(e.pointerId); } catch (x) {} });
+      on(area, 'pointermove', e => {
+        if (!down || done) return; const y = e.clientY;
+        shk.style.transform = 'translateY(' + Math.max(-50, Math.min(50, y - y0)) + 'px)';
+        // считаем смены направления: вверх-вниз = один «удар» шейкера
+        if (dir === 0) { if (y0 - y > 30) { dir = -1; ext = y; } else if (y - y0 > 30) { dir = 1; ext = y; } }
+        else if (dir === 1) { if (y > ext) ext = y; else if (ext - y > 30) { dir = -1; ext = y; val++; buzz(15); prog(); } }
+        else { if (y < ext) ext = y; else if (y - ext > 30) { dir = 1; ext = y; val++; buzz(15); prog(); } }
       });
-      out.push(line);
-    });
-    return out;
-  }
-  function ensure(h) { if (y + h > BOTTOM) newPage(); }
-  function hline(yy, w, color) { ctx.fillStyle = color || LINE; ctx.fillRect(M, yy, PW - 2 * M, w || 0.8); }
-  function rrect(x, yy, w, h, r, color) {
-    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + r, yy); ctx.arcTo(x + w, yy, x + w, yy + h, r); ctx.arcTo(x + w, yy + h, x, yy + h, r);
-    ctx.arcTo(x, yy + h, x, yy, r); ctx.arcTo(x, yy, x + w, yy, r); ctx.closePath(); ctx.fill();
-  }
-
-  newPage();
-  var p = kp.profile || S.profile, W = PW - 2 * M;
-  var logoW = logo ? 60 : 0;
-  // Шапка: мастер
-  var nameLines = wrap(p.name || '[Имя мастера]', W - logoW - 16, 18, 800);
-  var top = y;
-  nameLines.forEach(function (l) { y += 20; txt(l, M, y, 18, 800); });
-  [p.trade, p.phone || '[Телефон]'].forEach(function (s) { if (!s) return; wrap(s, W - logoW - 16, 11.5, 600).forEach(function (l) { y += 16; txt(l, M, y, 11.5, 600, MUTED); }); });
-  if (logo) {
-    var r = Math.min(60 / logo.width, 60 / logo.height), lw = logo.width * r, lh = logo.height * r;
-    ctx.drawImage(logo, PW - M - lw, top + (60 - lh) / 2, lw, lh); y = Math.max(y, top + 60);
-  }
-  y += 18; hline(y, 2, INK); y += 30;
-  // Заголовок
-  wrap('Коммерческое предложение № ' + kp.no, W, 21, 800).forEach(function (l, i) { if (i) y += 26; txt(l, M, y, 21, 800); });
-  var sub = (kp.client || 'Клиент') + (kp.address ? ' · ' + kp.address : '') + ' · ' + kp.date;
-  wrap(sub, W, 11.5, 600).forEach(function (l) { y += 17; txt(l, M, y, 11.5, 600, MUTED); });
-  y += 28;
-  // Таблица
-  var xQty = PW - M - 110, xSum = PW - M, nameW = W - 110 - 80 - 12;
-  function head() { txt('РАБОТА', M, y, 9, 800, MUTED); txt('КОЛ-ВО', xQty, y, 9, 800, MUTED, 'right'); txt('СУММА', xSum, y, 9, 800, MUTED, 'right'); y += 8; hline(y); }
-  head();
-  var rows = kp.lines.map(function (l) { return { name: l.name, sub: money(l.price) + ' за ' + l.unit, qty: qfmt(l.qty) + ' ' + l.unit, sum: money(l.sum) }; });
-  if (kp.mat > 0) rows.push({ name: kp.matLabel || 'Материалы', sub: '', qty: '', sum: money(kp.mat) });
-  rows.forEach(function (r) {
-    var nl = wrap(r.name, nameW, 12.5, 700), h = nl.length * 17 + (r.sub ? 15 : 0) + 18;
-    if (y + h > BOTTOM) { newPage(); head(); }
-    var yy = y + 6;
-    nl.forEach(function (l, i) { yy += 17; txt(l, M, yy, 12.5, 700); if (i === 0) { txt(r.qty, xQty, yy, 12, 600, MUTED, 'right'); txt(r.sum, xSum, yy, 12.5, 700, INK, 'right'); } });
-    if (r.sub) { yy += 15; txt(r.sub, M, yy, 10, 600, MUTED); }
-    y = yy + 11; hline(y);
-  });
-  // Итого
-  ensure(50); y += 34; txt('Итого', M, y, 14, 800); txt(money(kp.total), xSum, y + 2, 24, 800, INK, 'right'); y += 22;
-  // Условия
-  var terms = [];
-  if (p.term) terms.push('Срок: ' + p.term);
-  if (p.warranty) terms.push('Гарантия на работы: ' + p.warranty);
-  if (p.prepay) terms.push('Предоплата: ' + p.prepay);
-  if (terms.length) {
-    var tl = []; terms.forEach(function (t) { tl = tl.concat(wrap(t, W - 28, 11.5, 600)); });
-    var th = tl.length * 18 + 18; ensure(th + 10); y += 6;
-    rrect(M, y, W, th, 8, TINT); var ty = y + 9;
-    tl.forEach(function (l) { ty += 18; txt(l, M + 14, ty - 4, 11.5, 600); }); y += th;
-  }
-  if (p.note) { y += 10; wrap(p.note, W, 10.5, 600).forEach(function (l) { ensure(16); y += 15; txt(l, M, y, 10.5, 600, MUTED); }); }
-  pages.forEach(function (c) { ctx = c.getContext('2d'); txt('Сделано в приложении «Смета и КП» · theodorestoic.github.io', PW / 2, PH - 22, 7.5, 600, '#A3A9B0', 'center'); });
-  return pages;
-}
-/* Упаковывает картинки страниц в PDF-файл */
-function pagesToPdf(pages) {
-  var enc = new TextEncoder(), parts = [], offs = [], len = 0, PW = 595.28, PH = 841.89;
-  function add(x) { var b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); len += b.length; }
-  function obj(n, body) { offs[n] = len; add(n + ' 0 obj\n'); body(); add('\nendobj\n'); }
-  var n = pages.length, kids = [];
-  for (var i = 0; i < n; i++) kids.push((3 + i * 3) + ' 0 R');
-  add('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'.replace(/[\xE2\xE3\xCF\xD3]/g, 'a'));
-  obj(1, function () { add('<< /Type /Catalog /Pages 2 0 R >>'); });
-  obj(2, function () { add('<< /Type /Pages /Kids [' + kids.join(' ') + '] /Count ' + n + ' >>'); });
-  pages.forEach(function (c, i) {
-    var pn = 3 + i * 3, cn = pn + 1, im = pn + 2;
-    var b64 = c.toDataURL('image/jpeg', 0.9).split(',')[1], bin = atob(b64), jpg = new Uint8Array(bin.length);
-    for (var j = 0; j < bin.length; j++) jpg[j] = bin.charCodeAt(j);
-    var cs = 'q ' + PW + ' 0 0 ' + PH + ' 0 0 cm /Im0 Do Q';
-    obj(pn, function () { add('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + PW + ' ' + PH + '] /Resources << /XObject << /Im0 ' + im + ' 0 R >> >> /Contents ' + cn + ' 0 R >>'); });
-    obj(cn, function () { add('<< /Length ' + cs.length + ' >>\nstream\n' + cs + '\nendstream'); });
-    obj(im, function () { add('<< /Type /XObject /Subtype /Image /Width ' + c.width + ' /Height ' + c.height + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpg.length + ' >>\nstream\n'); add(jpg); add('\nendstream'); });
-  });
-  var total = 3 + n * 3, xref = len;
-  var x = 'xref\n0 ' + total + '\n0000000000 65535 f \n';
-  for (var k = 1; k < total; k++) x += String(offs[k]).padStart(10, '0') + ' 00000 n \n';
-  add(x + 'trailer\n<< /Size ' + total + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n');
-  return new Blob(parts, { type: 'application/pdf' });
-}
-function makePdf(kp, btn) {
-  if (PREVIEW) { toast('PDF заработает в версии на твоём сайте. Здесь только проверка экранов.'); return; }
-  btn.disabled = true; var label = btn.textContent; btn.textContent = 'Готовлю PDF…';
-  var done = function () { btn.disabled = false; btn.textContent = label; };
-  loadImg((kp.profile || S.profile).logo).then(function (logo) {
-    var blob = pagesToPdf(drawKp(kp, logo));
-    done(); deliver(blob, kpFileName(kp));
-  }).catch(function () { done(); toast('Не получилось собрать PDF. Попробуй ещё раз.'); });
-}
-
-/* ---------- Навигация ---------- */
-/* ---------- Выбор профессии ---------- */
-function renderPick() {
-  var first = !S.prof, h;
-  if (pending) {
-    var p = profById(pending);
-    h = '<div class="head"><p class="eyebrow">Смена профессии</p><h1>' + esc(p.name) + '</h1></div>' +
-      '<div class="panel pad"><h2>Что сделать с прайсом?</h2><p class="hint">Стандартный прайс для «' + esc(p.name) + '» заменит твой список работ. Сохранённые КП не изменятся.</p>' +
-      '<button class="btn primary block" data-act="pickreplace">Заменить прайс на стандартный</button>' +
-      '<button class="btn ghost block" data-act="pickkeep">Оставить мой прайс</button>' +
-      '<button class="btn ghost block" data-act="pickback">Назад</button></div>';
-  } else {
-    h = '<div class="head"><p class="eyebrow">' + (first ? 'Первый запуск' : 'Профиль') + '</p><h1>Чем занимаешься?</h1></div>' +
-      '<p class="hint">Загружу готовый прайс для твоей работы. Цены в нём примерные, их можно поменять во вкладке «Прайс».</p><div class="profs">';
-    PROFS.forEach(function (p) {
-      var cur = S.prof === p.id;
-      h += '<button class="prof' + (cur ? ' cur' : '') + '" data-prof="' + p.id + '"' + (cur ? ' aria-current="true"' : '') + '><b>' + esc(p.name) + '</b><span>' + (p.id === 'own' ? 'Пустой прайс, заполню сам' : p.works.length + ' работ в прайсе') + '</span></button>';
-    });
-    h += '</div>';
-    if (!first) h += '<button class="btn ghost block" data-act="pickcancel">Отмена</button>';
-  }
-  $main.innerHTML = h; $bar.hidden = true;
-}
-
-function render() {
-  document.getElementById('tabs').hidden = pick;
-  if (pick) { renderPick(); $main.scrollTop = 0; return; }
-  document.querySelectorAll('#tabs button').forEach(function (b) { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-  if (view) { var kp = S.history.find(function (k) { return k.id === view; }); if (kp) { renderKp(kp); $main.scrollTop = 0; return; } view = null; }
-  ({ calc: renderCalc, history: renderHistory, price: renderPrice, profile: renderProfile })[tab]();
-}
-function go(t) { tab = t; view = null; confirmId = null; delConfirm = null; render(); $main.scrollTop = 0; }
-
-document.getElementById('tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) go(b.dataset.tab); });
-
-document.addEventListener('input', function (e) {
-  var t = e.target;
-  if (tab === 'calc' && !view && (t.dataset.d || t.dataset.q)) return onCalcInput(e);
-  if (t.dataset.pn) { S.works.find(function (w) { return w.id === t.dataset.pn; }).name = t.value.replace(/\n/g, ' '); grow(t); save(); }
-  if (t.dataset.pp) { S.works.find(function (w) { return w.id === t.dataset.pp; }).price = t.value; save(); }
-  if (t.dataset.pf) { S.profile[t.dataset.pf] = t.value; save(); }
-});
-document.addEventListener('focusin', function (e) { if (S.sample && e.target.classList && e.target.classList.contains('inp')) { S.sample = false; save(); } });
-
-document.addEventListener('change', function (e) {
-  var t = e.target;
-  if (t.id === 'f-logo' && t.files[0]) {
-    var r = new FileReader();
-    r.onload = function () {
-      var img = new Image();
-      img.onload = function () {
-        var m = 256, k = Math.min(1, m / Math.max(img.width, img.height));
-        var c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-        S.profile.logo = c.toDataURL('image/png'); save(); render(); toast('Логотип добавлен');
-      };
-      img.src = r.result;
-    };
-    r.readAsDataURL(t.files[0]);
-  }
-  if (t.id === 'f-restore' && t.files[0]) {
-    var rr = new FileReader();
-    rr.onload = function () {
-      try { var d = JSON.parse(rr.result); if (!d.works || !d.profile) throw 0; S = d; save(); go('calc'); toast('Данные восстановлены'); }
-      catch (err) { toast('Это не файл копии из этого приложения'); }
-    };
-    rr.readAsText(t.files[0]);
-  }
-});
-
-document.addEventListener('click', function (e) {
-  var b = e.target.closest('button'); if (!b) return;
-  var act = b.dataset.act;
-  if (b.dataset.goto) return go(b.dataset.goto);
-  if (b.dataset.open) { view = b.dataset.open; delConfirm = null; render(); return; }
-  if (b.dataset.unit) {
-    var w = S.works.find(function (x) { return x.id === b.dataset.unit; });
-    w.unit = UNITS[(UNITS.indexOf(w.unit) + 1) % UNITS.length]; save();
-    b.textContent = '₽/' + w.unit; b.setAttribute('aria-label', 'Единица: ' + w.unit + ', сменить'); return;
-  }
-  if (b.dataset.del) {
-    if (confirmId === b.dataset.del) { S.works = S.works.filter(function (x) { return x.id !== b.dataset.del; }); delete S.draft.qty[b.dataset.del]; confirmId = null; save(); }
-    else confirmId = b.dataset.del;
-    renderPrice(); return;
-  }
-  if (act === 'make') return makeKp();
-  if (act === 'reset') { S.draft = { client: '', address: '', qty: {}, mat: '', editId: null }; S.sample = false; save(); renderCalc(); $main.scrollTop = 0; return; }
-  if (act === 'back') { view = null; delConfirm = null; render(); return; }
-  if (act === 'delask') { delConfirm = b.dataset.id; render(); var bt = $main.querySelector('[data-act="delkp"]'); if (bt) bt.scrollIntoView({ block: 'center' }); return; }
-  if (act === 'delno') { delConfirm = null; render(); return; }
-  if (act === 'delkp') {
-    var dk = S.history.find(function (k) { return k.id === b.dataset.id; });
-    S.history = S.history.filter(function (k) { return k.id !== b.dataset.id; });
-    if (S.draft.editId === b.dataset.id) S.draft.editId = null;
-    save(); delConfirm = null; go('history'); toast('КП № ' + (dk ? dk.no : '') + ' удалено'); return;
-  }
-  if (act === 'pdf') { var kp = S.history.find(function (k) { return k.id === b.dataset.id; }); if (kp) makePdf(kp, b); return; }
-  if (act === 'edit' || act === 'dup') {
-    var src = S.history.find(function (k) { return k.id === b.dataset.id; }); if (!src) return;
-    var qty = {};
-    src.lines.forEach(function (l) {
-      var w2 = S.works.find(function (x) { return x.name === l.name; });
-      if (!w2) { w2 = { id: uid(), name: l.name, unit: l.unit, price: l.price }; S.works.push(w2); }
-      qty[w2.id] = String(l.qty);
-    });
-    S.draft = { client: act === 'dup' ? '' : src.client, address: act === 'dup' ? '' : src.address, qty: qty, mat: String(src.mat || ''), editId: act === 'edit' ? src.id : null };
-    save(); go('calc'); if (act === 'dup') toast('Скопировано. Впиши нового клиента.'); return;
-  }
-  if (act === 'addwork') {
-    var nw = { id: uid(), name: '', unit: 'м²', price: '' }; S.works.push(nw); save(); renderPrice();
-    var inp = document.getElementById('n-' + nw.id); if (inp) { inp.focus(); inp.scrollIntoView({ block: 'center' }); } return;
-  }
-  if (b.dataset.prof) {
-    var pr = profById(b.dataset.prof);
-    if (!S.prof || !S.works.length || S.works.every(function (w) { return !w.name; })) {
-      applyProf(pr, true); pick = false; go('price');
-      toast('Прайс «' + pr.name + '» загружен. Поправь цены под себя.'); return;
+      const up = () => { down = false; shk.style.transform = ''; };
+      on(area, 'pointerup', up); on(area, 'pointercancel', up);
+      on(window, 'devicemotion', e => {
+        const a = e.accelerationIncludingGravity || e.acceleration; if (!a || done) return;
+        const mag = Math.hypot(a.x || 0, a.y || 0, a.z || 0); const now = Date.now();
+        if (Math.abs(mag - 9.8) > 8 && now - lastShake > 160) { lastShake = now; val++; shk.style.transform = 'translateY(' + (val % 2 ? -20 : 20) + 'px)'; prog(); }
+      });
+    } else if (c.m === 'stir') {
+      const area = $('gest'), spn = $('spn'); let down = false, prev = null;
+      const ang = e => { const r = spn.ownerSVGElement.getBoundingClientRect(); return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)); };
+      on(area, 'pointerdown', e => { down = true; prev = ang(e); try { area.setPointerCapture(e.pointerId); } catch (x) {} });
+      on(area, 'pointermove', e => {
+        if (!down || done) return; const a = ang(e); let d = a - prev; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI;
+        if (Math.abs(d) < 1) { val += Math.abs(d); prog(); }
+        prev = a; spn.setAttribute('cx', (100 + 60 * Math.cos(a)).toFixed(1)); spn.setAttribute('cy', (100 + 60 * Math.sin(a)).toFixed(1));
+      });
+      const up = () => { down = false; }; on(area, 'pointerup', up); on(area, 'pointercancel', up);
+    } else {
+      const btn = $('blendbtn'); let hold = false, last = 0;
+      const tick = t => { if (!hold || done) return; val += t - last; last = t; prog(); $('vsl').style.transform = 'translateX(' + (Math.random() * 4 - 2).toFixed(1) + 'px)'; G._raf = requestAnimationFrame(tick); };
+      on(btn, 'pointerdown', e => { e.preventDefault(); hold = true; last = performance.now(); btn.classList.add('on'); try { btn.setPointerCapture(e.pointerId); } catch (x) {} G._raf = requestAnimationFrame(tick); });
+      const up = () => { hold = false; btn.classList.remove('on'); }; on(btn, 'pointerup', up); on(btn, 'pointercancel', up); on(btn, 'contextmenu', e => e.preventDefault());
     }
-    if (pr.id === S.prof) { pick = false; render(); return; }
-    pending = pr.id; render(); return;
   }
-  if (act === 'changeprof') { pick = true; pending = null; render(); return; }
-  if (act === 'pickcancel') { pick = false; render(); return; }
-  if (act === 'pickback') { pending = null; render(); return; }
-  if (act === 'pickreplace' || act === 'pickkeep') {
-    var pp = profById(pending); applyProf(pp, act === 'pickreplace'); pending = null; pick = false;
-    if (act === 'pickreplace') { go('price'); toast('Прайс «' + pp.name + '» загружен'); } else { render(); toast('Профессия изменена, прайс оставлен'); }
-    return;
+}
+function renderEnd() {
+  const c = G.c; const ok = G.step === 'done';
+  let h = '<div class="row"><button class="icon" data-act="home" aria-label="К списку">' + ICON.close + '</button><div class="grow"></div>' + (ok ? stars(G.lives, 26) : '') + '</div>';
+  if (ok) h += '<div><p class="eyebrow">+' + G.xp + ' XP · +' + G.tips + ' чаевых · серия ' + S.streak + ' дн.</p><h1>' + esc(c.n) + ' готов!</h1><p class="muted" style="margin-top:6px">' + (G.lives === 3 ? 'Без единой ошибки.' : 'Ошибок: ' + (3 - G.lives) + '. Повтори, чтобы получить три звезды.') + '</p></div>';
+  else h += '<div><p class="eyebrow">Жизни закончились</p><h1>Ничего страшного</h1><p class="muted" style="margin-top:6px">Посмотри рецепт и попробуй ещё раз.</p></div>';
+  h += recipeCard(c);
+  if (ok && G.newBest) h += '<div class="card row"><span style="flex-shrink:0">' + COIN + '</span><p>' + (G.firstTime ? 'Коктейль встал на полку в твоём баре.' : 'Коктейль на полке стал лучше.') + '</p></div>';
+  h += ok ? '<button class="btn" data-act="play" data-id="' + nextCocktail() + '">Следующий коктейль</button><button class="btn sec" data-act="play" data-id="' + c.id + '">Собрать ещё раз</button>'
+    : '<button class="btn" data-act="play" data-id="' + c.id + '">Попробовать снова</button><button class="btn sec" data-act="home">К списку</button>';
+  return h;
+}
+function renderSettings() {
+  return '<div class="row"><button class="icon" data-act="home" aria-label="Назад">' + ICON.back + '</button><h1>Настройки</h1></div>' +
+    '<button class="toggle" data-act="hints"><span><b>Подсказки для новичков</b><span class="muted" style="display:block;font-size:14px">Напоминание в игре, что ошибка покажет ответ</span></span><span class="sw' + (S.hints ? ' on' : '') + '"></span></button>' +
+    '<div class="card"><h2>О рецептах</h2><p class="muted" style="margin-top:6px">Рецепты взяты из официального списка Международной ассоциации барменов (IBA). В барах встречаются авторские варианты: тренажёр учит базовой классике.</p></div>' +
+    '<button class="btn sec" data-act="reset">' + (V.confirmReset ? 'Точно сбросить? Нажми ещё раз' : 'Сбросить прогресс') + '</button>' +
+    '<p class="foot">Шейкер · данные хранятся только на этом телефоне</p>';
+}
+function render(shake) {
+  if (G && G._off) G._off();
+  let h;
+  if (!S.adult) h = renderGate();
+  else if (V.scr === 'study') h = renderStudy();
+  else if (V.scr === 'game') h = (G.step === 'done' || G.step === 'fail') ? renderEnd() : renderGame();
+  else if (V.scr === 'settings') h = renderSettings();
+  else if (V.scr === 'bar') h = renderBar() + tabs();
+  else h = renderHome() + tabs();
+  $app.innerHTML = h;
+  $app.classList.toggle('withtabs', S.adult && (V.scr === 'home' || V.scr === 'bar'));
+  if (shake) { const m = document.getElementById('msg'); if (m) { m.classList.add('shake'); } if (navigator.vibrate) try { navigator.vibrate(60); } catch (e) {} }
+  if (!shake && V.scr !== 'game') window.scrollTo(0, 0);
+  bindGame();
+}
+$app.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const a = b.dataset.act;
+  if (a !== 'reset') V.confirmReset = false;
+  if (a === 'adult') { S.adult = true; save(); render(); }
+  else if (a === 'home' || a === 'quit') { V.scr = 'home'; G = null; render(); }
+  else if (a === 'open') { V.back = V.scr === 'bar' ? 'bar' : 'home'; V.scr = 'study'; V.cid = b.dataset.id; render(); }
+  else if (a === 'tab') { V.scr = b.dataset.to; render(); }
+  else if (a === 'buy') {
+    const u = UPGRADES.find(x => x.id === b.dataset.id);
+    if (u && !S.up[u.id] && S.tips >= u.price && (!u.need || S.up[u.need])) { S.tips -= u.price; S.up[u.id] = 1; save(); render(); }
   }
-  if (act === 'nologo') { S.profile.logo = ''; save(); render(); return; }
-  if (act === 'backup') {
-    if (PREVIEW) { toast('Копия заработает в версии на твоём сайте'); return; }
-    download(new Blob([JSON.stringify(S)], { type: 'application/json' }), 'kp-kopiya-' + new Date().toISOString().slice(0, 10) + '.json'); return;
+  else if (a === 'play') startGame(b.dataset.id);
+  else if (a === 'weak') startGame(weakOne());
+  else if (a === 'pick') pick(+b.dataset.i);
+  else if (a === 'tapadd' && G && G.step === 'pour') { G.cur++; document.getElementById('cnt').textContent = countText(); document.getElementById('vsl').innerHTML = vesselInner(pourExtra()); if (navigator.vibrate) try { navigator.vibrate(20); } catch (x) {} }
+  else if (a === 'tapdone' && G && G.step === 'pour') judgePour();
+  else if (a === 'mud' && G && G.step === 'muddle') {
+    G.cur++; const n = document.getElementById('cntm'); if (n) n.textContent = G.cur;
+    const md = document.getElementById('mdl'); if (md) { md.setAttribute('transform', 'translate(0 22)'); setTimeout(() => md.setAttribute('transform', ''), 110); }
+    if (navigator.vibrate) try { navigator.vibrate(30); } catch (x) {}
+    if (G.cur >= 6) { G.cur = 0; finishAction(); }
+  }
+  else if (a === 'settings') { V.scr = 'settings'; render(); }
+  else if (a === 'hints') { S.hints = !S.hints; save(); render(); }
+  else if (a === 'reset') {
+    if (!V.confirmReset) { V.confirmReset = true; render(); }
+    else { S.best = {}; S.xp = 0; S.streak = 0; S.lastDay = ''; S.tips = 0; S.up = {}; V.confirmReset = false; save(); V.scr = 'home'; render(); }
   }
 });
-
-if (!PREVIEW && 'serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
 render();
-})();
+if ('serviceWorker' in navigator && !false) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 
 </body>

@@ -77,6 +77,15 @@ p{margin:0}
 .gest{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:280px;width:100%;background:var(--card);border:2px dashed var(--line);border-radius:20px;touch-action:none;user-select:none;-webkit-user-select:none;padding:16px;color:var(--text)}
 .gest svg{transition:transform .08s}
 .gtxt{font-weight:700;color:var(--muted);text-align:center}
+#app.game .grid,#app.game .bottles,#app.game .hold,#app.game .gest{animation:fin .5s ease-out}
+@keyframes fin{from{opacity:.2}}
+.avsec{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.swatch{width:44px;height:44px;border-radius:22px;border:3px solid var(--card2)}
+.swatch.on{border-color:var(--acc)}
+.chip2{min-height:44px;border-radius:22px;border:2px solid var(--line);background:var(--card);font-weight:700;font-size:15px;padding:0 14px;display:inline-flex;align-items:center;gap:6px}
+.chip2.on{border-color:var(--acc);color:var(--acc)}
+.chip2[disabled]{opacity:.45;cursor:default}
 .shake{animation:sh .3s}
 @keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 </style>
@@ -231,12 +240,12 @@ function barScene() {
   const learned = D.filter(c => (S.best[c.id] || 0) > 0);
   const shelves = 1 + (S.up.shelf2 ? 1 : 0) + (S.up.shelf3 ? 1 : 0);
   const bases = [118, 198, 278];
-  let s = '<svg class="scene" viewBox="0 0 360 440" role="img" aria-label="Мой бар: ' + learned.length + ' коктейлей на полках">';
+  let s = '<svg class="scene" viewBox="0 0 360 540" role="img" aria-label="Мой бар: ' + learned.length + ' коктейлей на полках">';
   s += '<defs><linearGradient id="lamp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFC56B" stop-opacity=".28"/><stop offset="1" stop-color="#FFC56B" stop-opacity="0"/></linearGradient>' +
     '<filter id="glow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
-  s += '<rect width="360" height="330" fill="' + (S.up.lamps ? '#2B211A' : '#1E1915') + '"/>';
-  for (let i = 0; i < 9; i++) s += '<rect x="' + (i * 40) + '" y="0" width="1" height="330" fill="#000" opacity=".18"/>';
-  if (S.up.lamps) [70, 180, 290].forEach(x => { s += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="22" stroke="#6B5A48" stroke-width="2"/><path d="M' + (x - 12) + ' 30 L' + (x + 12) + ' 30 L' + (x + 8) + ' 22 L' + (x - 8) + ' 22 Z" fill="#E8A33D"/><path d="M' + (x - 10) + ' 30 L' + (x + 10) + ' 30 L' + (x + 60) + ' 300 L' + (x - 60) + ' 300 Z" fill="url(#lamp)"/>'; });
+  s += '<rect width="360" height="430" fill="' + (S.up.lamps ? '#2B211A' : '#1E1915') + '"/>';
+  for (let i = 0; i < 9; i++) s += '<rect x="' + (i * 40) + '" y="0" width="1" height="430" fill="#000" opacity=".18"/>';
+  if (S.up.lamps) [70, 180, 290].forEach(x => { s += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="22" stroke="#6B5A48" stroke-width="2"/><path d="M' + (x - 12) + ' 30 L' + (x + 12) + ' 30 L' + (x + 8) + ' 22 L' + (x - 8) + ' 22 Z" fill="#E8A33D"/><path d="M' + (x - 10) + ' 30 L' + (x + 10) + ' 30 L' + (x + 60) + ' 400 L' + (x - 60) + ' 400 Z" fill="url(#lamp)"/>'; });
   if (S.up.neon) s += '<text x="180" y="60" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="30" letter-spacing="4" fill="#FF6FB5" stroke="#FFD1EA" stroke-width=".8" filter="url(#glow)">ШЕЙКЕР</text>';
   for (let k = 0; k < 3; k++) {
     const b = bases[k];
@@ -253,10 +262,11 @@ function barScene() {
     }
   }
   const top = S.up.wood ? '#8A5A33' : '#5E5A55', front = S.up.wood ? '#5C3A20' : '#3E3B38';
-  s += '<rect x="0" y="318" width="360" height="16" fill="' + top + '"/><rect x="0" y="334" width="360" height="106" fill="' + front + '"/>';
-  s += '<rect x="0" y="334" width="360" height="4" fill="#000" opacity=".25"/>';
-  if (S.up.wood) for (let i = 1; i < 6; i++) s += '<rect x="' + (i * 60) + '" y="344" width="2" height="96" fill="#000" opacity=".18"/>';
-  if (S.up.stools) [60, 180, 300].forEach(x => { s += '<rect x="' + (x - 3) + '" y="392" width="6" height="48" fill="#2A241F"/><ellipse cx="' + x + '" cy="390" rx="26" ry="8" fill="#C0392B"/><ellipse cx="' + x + '" cy="387" rx="26" ry="6" fill="#E04A3A"/>'; });
+  s += '<g data-act="avatar" role="button" aria-label="Твой бармен"><title>Твой бармен</title><g transform="translate(0 40)">' + avatarSvg(S.av) + '</g></g>';
+  s += '<rect x="0" y="418" width="360" height="16" fill="' + top + '"/><rect x="0" y="434" width="360" height="106" fill="' + front + '"/>';
+  s += '<rect x="0" y="434" width="360" height="4" fill="#000" opacity=".25"/>';
+  if (S.up.wood) for (let i = 1; i < 6; i++) s += '<rect x="' + (i * 60) + '" y="444" width="2" height="96" fill="#000" opacity=".18"/>';
+  if (S.up.stools) [60, 180, 300].forEach(x => { s += '<rect x="' + (x - 3) + '" y="492" width="6" height="48" fill="#2A241F"/><ellipse cx="' + x + '" cy="490" rx="26" ry="8" fill="#C0392B"/><ellipse cx="' + x + '" cy="487" rx="26" ry="6" fill="#E04A3A"/>'; });
   return s + '</svg>';
 }
 const totalVol = c => c.s.reduce((a, x) => a + (typeof x[1] === 'number' ? x[1] : (VOL[x[1]] || 5)), 0);
@@ -320,6 +330,7 @@ function wrong(text) {
   render(true);
 }
 function go(step, text) {
+  G.lock = Date.now() + 600;
   if (text !== undefined) { G.msg = text; G.kind = text ? 'ok' : ''; }
   G.step = step;
   if (step === 'done') { finish(); return; }
@@ -399,6 +410,70 @@ function weakOne() {
   return from[Math.floor(Math.random() * from.length)].id;
 }
 
+// ---------- Бармен (альтер-эго игрока) ----------
+const SKIN = ['#F6D3B8', '#E8B48F', '#C98B62', '#9A6342', '#6B4128'];
+const HAIRC = ['#1E1A17', '#5A3A22', '#A8652F', '#D8B36A', '#B0B0B0', '#C2452F'];
+const TEE = ['#3B6EA8', '#2F7D4F', '#8A3C10', '#4A4A4A', '#B03A5B'];
+const HAIRS = [['short', 'Короткие'], ['long', 'Длинные'], ['bun', 'Пучок'], ['curly', 'Кудри'], ['bald', 'Лысый']];
+const BEARDS = [['none', 'Без бороды'], ['stubble', 'Щетина'], ['full', 'Борода']];
+const OUTFITS = [['tee', 'Футболка', 0], ['apron', 'Фартук', 40], ['susp', 'Подтяжки', 60], ['bow', 'Рубашка и бабочка', 80], ['vest', 'Жилет', 120]];
+const HATS = [['none', 'Без шапки', 0], ['cap', 'Кепка', 30], ['fedora', 'Шляпа', 90]];
+if (!S.av) S.av = { skin: 1, hair: 'short', hairC: 1, beard: 'none', glasses: 0, outfit: 'tee', tee: 0, hat: 'none' };
+if (!S.owned) S.owned = {};
+const owns = id => !!S.owned[id] || [...OUTFITS, ...HATS].some(x => x[0] === id && x[2] === 0);
+// Рисует бармена за стойкой: голова в (180, 300), плечи упираются в стойку на y=378
+function avatarSvg(a) {
+  const sk = SKIN[a.skin] || SKIN[1], hc = HAIRC[a.hairC] || HAIRC[1];
+  let s = '';
+  // тело и одежда
+  const torso = 'M128 378 Q130 340 158 332 L202 332 Q230 340 232 378 Z';
+  const shirt = a.outfit === 'tee' ? TEE[a.tee] || TEE[0] : a.outfit === 'apron' ? '#4A4A4A' : '#F4F1EA';
+  s += '<rect x="173" y="318" width="14" height="16" fill="' + sk + '"/>';
+  s += '<path d="' + torso + '" fill="' + shirt + '"/>';
+  if (a.outfit === 'tee' || a.outfit === 'apron') s += '<path d="M168 332 Q180 344 192 332 Z" fill="' + sk + '"/>';
+  if (a.outfit === 'apron') s += '<path d="M164 340 L196 340 L198 378 L162 378 Z" fill="#E9E3D9"/><path d="M166 340 L172 332 M194 340 L188 332" stroke="#E9E3D9" stroke-width="3"/><rect x="172" y="356" width="16" height="10" rx="2" fill="#D3CBBE"/>';
+  if (a.outfit === 'susp') s += '<path d="M166 333 L170 378 M194 333 L190 378" stroke="#8A2B2B" stroke-width="5"/><path d="M170 332 L180 341 L190 332" fill="none" stroke="#D3CBBE" stroke-width="2"/>';
+  if (a.outfit === 'bow' || a.outfit === 'vest') s += '<path d="M168 332 L180 344 L175 332 Z M192 332 L180 344 L185 332 Z" fill="#FFFFFF" stroke="#D3CBBE" stroke-width="1"/>';
+  if (a.outfit === 'vest') s += '<path d="M130 378 Q132 344 158 334 L170 334 L180 362 L180 378 Z M230 378 Q228 344 202 334 L190 334 L180 362 L180 378 Z" fill="#2A2A35"/><circle cx="184" cy="368" r="2" fill="#C9A24A"/><circle cx="184" cy="375" r="2" fill="#C9A24A"/>';
+  if (a.outfit === 'bow' || a.outfit === 'vest') s += '<path d="M180 340 L169 335 L169 345 Z M180 340 L191 335 L191 345 Z" fill="#B0222E"/><circle cx="180" cy="340" r="2.5" fill="#8A1A23"/>';
+  // голова
+  if (a.hair === 'long') s += '<path d="M156 298 Q154 270 180 268 Q206 270 204 298 L206 332 L194 332 L196 300 L164 300 L166 332 L154 332 Z" fill="' + hc + '"/>';
+  s += '<circle cx="157" cy="302" r="4" fill="' + sk + '"/><circle cx="203" cy="302" r="4" fill="' + sk + '"/>';
+  s += '<ellipse cx="180" cy="300" rx="22" ry="25" fill="' + sk + '"/>';
+  if (a.beard === 'stubble') s += '<path d="M159 302 Q161 327 180 328 Q199 327 201 302 Q197 318 180 318 Q163 318 159 302 Z" fill="' + hc + '" opacity=".35"/>';
+  if (a.beard === 'full') s += '<path d="M158 298 Q157 336 180 338 Q203 336 202 298 Q199 316 188 315 L172 315 Q161 316 158 298 Z" fill="' + hc + '"/>';
+  // лицо
+  s += '<path d="M168 292 L176 291 M184 291 L192 292" stroke="' + hc + '" stroke-width="2.4" stroke-linecap="round"/>';
+  s += '<circle cx="172" cy="300" r="2.4" fill="#1E1A17"/><circle cx="188" cy="300" r="2.4" fill="#1E1A17"/>';
+  s += '<path d="M173 311 Q180 317 187 311" fill="none" stroke="' + (a.beard === 'full' ? '#F4EDE3' : '#7A3B2E') + '" stroke-width="2" stroke-linecap="round"/>';
+  if (a.glasses) s += '<circle cx="172" cy="300" r="6.5" fill="none" stroke="#1E1A17" stroke-width="1.8"/><circle cx="188" cy="300" r="6.5" fill="none" stroke="#1E1A17" stroke-width="1.8"/><path d="M178.5 300 L181.5 300" stroke="#1E1A17" stroke-width="1.8"/>';
+  // волосы сверху
+  if (a.hair === 'short' || a.hair === 'long' || a.hair === 'bun') s += '<path d="M157 298 Q155 271 180 269 Q205 271 203 298 Q199 283 180 282 Q161 283 157 298 Z" fill="' + hc + '"/>';
+  if (a.hair === 'bun') s += '<circle cx="180" cy="265" r="9" fill="' + hc + '"/>';
+  if (a.hair === 'curly') [[160, 290], [164, 279], [172, 272], [180, 270], [188, 272], [196, 279], [200, 290]].forEach(p => { s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="8" fill="' + hc + '"/>'; });
+  // головной убор
+  if (a.hat === 'cap') s += '<path d="M156 288 Q156 263 180 262 Q204 263 204 288 Z" fill="#2F4A7A"/><path d="M196 284 Q216 283 218 290 L196 290 Z" fill="#26406B"/>';
+  if (a.hat === 'fedora') s += '<ellipse cx="180" cy="283" rx="32" ry="5" fill="#3A2E24"/><path d="M162 283 L164 262 Q180 255 196 262 L198 283 Z" fill="#3A2E24"/><rect x="163" y="274" width="34" height="5" fill="#8A3C10"/>';
+  return s;
+}
+function renderAvatar() {
+  const a = S.av;
+  const sw = (key, list, cur) => list.map((c, i) => '<button class="swatch' + (i === cur ? ' on' : '') + '" data-act="av" data-k="' + key + '" data-v="' + i + '" style="background:' + c + '" aria-label="Вариант ' + (i + 1) + '"' + (i === cur ? ' aria-pressed="true"' : '') + '></button>').join('');
+  const ch = (key, list, cur) => list.map(x => {
+    const paid = x[2] > 0 && !owns(x[0]);
+    return '<button class="chip2' + (x[0] === cur ? ' on' : '') + '" data-act="' + (paid ? 'avbuy' : 'av') + '" data-k="' + key + '" data-v="' + x[0] + '"' + (paid && S.tips < x[2] ? ' disabled' : '') + '>' + esc(x[1]) + (paid ? ' <span class="coin">' + COIN + x[2] + '</span>' : '') + '</button>';
+  }).join('');
+  let h = '<div class="row"><button class="icon" data-act="tab" data-to="bar" aria-label="Назад">' + ICON.back + '</button><div class="grow"><p class="eyebrow">Твой бармен</p><h1>Внешность</h1></div><span class="stat coin" style="color:var(--acc)">' + COIN + S.tips + '</span></div>';
+  h += '<svg class="scene" viewBox="110 250 140 130" role="img" aria-label="Твой бармен"><rect x="110" y="250" width="140" height="130" fill="#2B211A"/>' + avatarSvg(a) + '</svg>';
+  h += '<div class="avsec"><p class="eyebrow">Кожа</p><div class="chips">' + sw('skin', SKIN, a.skin) + '</div></div>';
+  h += '<div class="avsec"><p class="eyebrow">Причёска</p><div class="chips">' + ch('hair', HAIRS, a.hair) + '</div><div class="chips">' + sw('hairC', HAIRC, a.hairC) + '</div></div>';
+  h += '<div class="avsec"><p class="eyebrow">Борода и очки</p><div class="chips">' + ch('beard', BEARDS, a.beard) + '<button class="chip2' + (a.glasses ? ' on' : '') + '" data-act="av" data-k="glasses" data-v="' + (a.glasses ? 0 : 1) + '">Очки</button></div></div>';
+  h += '<div class="avsec"><p class="eyebrow">Одежда · за чаевые</p><div class="chips">' + ch('outfit', OUTFITS, a.outfit) + '</div>' + (a.outfit === 'tee' ? '<div class="chips">' + sw('tee', TEE, a.tee) + '</div>' : '') + '</div>';
+  h += '<div class="avsec"><p class="eyebrow">Головной убор</p><div class="chips">' + ch('hat', HATS, a.hat) + '</div></div>';
+  h += '<p class="foot">Внешность меняется бесплатно. Одежду покупаешь один раз и носишь когда хочешь.</p>';
+  return h;
+}
+
 // ---------- Экраны ----------
 const COIN = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#E8A33D"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#14110F" stroke-width="2"/></svg>';
 function header(left) {
@@ -415,6 +490,7 @@ function renderBar() {
   const perfect = D.filter(c => S.best[c.id] === 3).length;
   let h = '<div class="row"><div class="grow"><p class="eyebrow">На полках: ' + learned + ' · идеальных: ' + perfect + '</p><h1>Мой бар</h1></div><span class="stat coin" style="color:var(--acc)">' + COIN + S.tips + '</span></div>';
   h += barScene();
+  h += '<button class="btn sec" data-act="avatar">Настроить бармена</button>';
   h += '<p class="muted" style="font-size:14px">Три звезды: идеальный коктейль с украшением. Две: аккуратный. Одна: недолит и пролит. Нажми на коктейль, чтобы пересобрать его лучше.</p>';
   if (!learned) h += '<div class="card"><p>Полки пока пустые. Собери первый коктейль, и он встанет сюда.</p><button class="btn" style="margin-top:12px" data-act="tab" data-to="home">К коктейлям</button></div>';
   h += '<p class="eyebrow" style="margin-top:4px">Прокачка бара · чаевые за коктейли</p>';
@@ -543,7 +619,7 @@ function bindGame() {
       if (m.k === 'top' && G.cur >= 95) { G.cur = 95; stop(); return; }
       upd(); G._raf = requestAnimationFrame(tick);
     };
-    const start = e => { e.preventDefault(); if (pouring) return; pouring = true; try { btn.setPointerCapture(e.pointerId); } catch (x) {} last = performance.now(); $('btl').classList.add('on'); btn.classList.add('on'); G._raf = requestAnimationFrame(tick); };
+    const start = e => { e.preventDefault(); if (pouring || Date.now() < (G.lock || 0)) return; pouring = true; try { btn.setPointerCapture(e.pointerId); } catch (x) {} last = performance.now(); $('btl').classList.add('on'); btn.classList.add('on'); G._raf = requestAnimationFrame(tick); };
     const stop = () => { if (!pouring) return; pouring = false; cancelAnimationFrame(G._raf); const b = $('btl'); if (b) b.classList.remove('on'); btn.classList.remove('on'); upd(); judgePour(); };
     on(btn, 'pointerdown', start); on(btn, 'pointerup', stop); on(btn, 'pointercancel', stop); on(btn, 'lostpointercapture', stop);
     on(btn, 'contextmenu', e => e.preventDefault());
@@ -593,7 +669,7 @@ function renderEnd() {
   else h += '<div><p class="eyebrow">Жизни закончились</p><h1>Ничего страшного</h1><p class="muted" style="margin-top:6px">Посмотри рецепт и попробуй ещё раз.</p></div>';
   h += recipeCard(c);
   if (ok && G.newBest) h += '<div class="card row"><span style="flex-shrink:0">' + COIN + '</span><p>' + (G.firstTime ? 'Коктейль встал на полку в твоём баре.' : 'Коктейль на полке стал лучше.') + '</p></div>';
-  h += ok ? '<button class="btn" data-act="play" data-id="' + nextCocktail() + '">Следующий коктейль</button><button class="btn sec" data-act="play" data-id="' + c.id + '">Собрать ещё раз</button>'
+  h += ok ? '<button class="btn" data-act="open" data-id="' + nextCocktail() + '">Следующий коктейль</button><button class="btn sec" data-act="play" data-id="' + c.id + '">Собрать ещё раз</button>'
     : '<button class="btn" data-act="play" data-id="' + c.id + '">Попробовать снова</button><button class="btn sec" data-act="home">К списку</button>';
   return h;
 }
@@ -611,9 +687,11 @@ function render(shake) {
   else if (V.scr === 'study') h = renderStudy();
   else if (V.scr === 'game') h = (G.step === 'done' || G.step === 'fail') ? renderEnd() : renderGame();
   else if (V.scr === 'settings') h = renderSettings();
+  else if (V.scr === 'avatar') h = renderAvatar();
   else if (V.scr === 'bar') h = renderBar() + tabs();
   else h = renderHome() + tabs();
   $app.innerHTML = h;
+  $app.classList.toggle('game', V.scr === 'game');
   $app.classList.toggle('withtabs', S.adult && (V.scr === 'home' || V.scr === 'bar'));
   if (shake) { const m = document.getElementById('msg'); if (m) { m.classList.add('shake'); } if (navigator.vibrate) try { navigator.vibrate(60); } catch (e) {} }
   if (!shake && V.scr !== 'game') window.scrollTo(0, 0);
@@ -623,10 +701,17 @@ $app.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
   const a = b.dataset.act;
   if (a !== 'reset') V.confirmReset = false;
+  if ((a === 'pick' || a === 'tapadd' || a === 'tapdone' || a === 'mud') && G && Date.now() < (G.lock || 0)) return;
   if (a === 'adult') { S.adult = true; save(); render(); }
   else if (a === 'home' || a === 'quit') { V.scr = 'home'; G = null; render(); }
   else if (a === 'open') { V.back = V.scr === 'bar' ? 'bar' : 'home'; V.scr = 'study'; V.cid = b.dataset.id; render(); }
   else if (a === 'tab') { V.scr = b.dataset.to; render(); }
+  else if (a === 'avatar') { V.scr = 'avatar'; render(); }
+  else if (a === 'av') { const k = b.dataset.k, v = b.dataset.v; S.av[k] = /^(skin|hairC|tee|glasses)$/.test(k) ? +v : v; save(); render(); }
+  else if (a === 'avbuy') {
+    const k = b.dataset.k, v = b.dataset.v; const it = (k === 'hat' ? HATS : OUTFITS).find(x => x[0] === v);
+    if (it && S.tips >= it[2]) { S.tips -= it[2]; S.owned[v] = 1; S.av[k] = v; save(); render(); }
+  }
   else if (a === 'buy') {
     const u = UPGRADES.find(x => x.id === b.dataset.id);
     if (u && !S.up[u.id] && S.tips >= u.price && (!u.need || S.up[u.need])) { S.tips -= u.price; S.up[u.id] = 1; save(); render(); }
@@ -646,7 +731,7 @@ $app.addEventListener('click', e => {
   else if (a === 'hints') { S.hints = !S.hints; save(); render(); }
   else if (a === 'reset') {
     if (!V.confirmReset) { V.confirmReset = true; render(); }
-    else { S.best = {}; S.xp = 0; S.streak = 0; S.lastDay = ''; S.tips = 0; S.up = {}; V.confirmReset = false; save(); V.scr = 'home'; render(); }
+    else { S.best = {}; S.xp = 0; S.streak = 0; S.lastDay = ''; S.tips = 0; S.up = {}; S.owned = {}; S.av.outfit = 'tee'; S.av.hat = 'none'; V.confirmReset = false; save(); V.scr = 'home'; render(); }
   }
 });
 render();
